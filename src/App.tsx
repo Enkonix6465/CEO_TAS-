@@ -25,6 +25,7 @@ import Reports from "./pages/Reports";
 import { View } from "lucide-react";
 import PerformMatrix from "./pages/PerformMatrix";
 import Makeleader from "./pages/Makeleader";
+import FeedbackPage from "./pages/FeedbackPage";
 import { ConnectionStatusIndicator } from "./components/ConnectionStatusIndicator";
 import ErrorBoundary from "./components/ErrorBoundary";
 function App() {
@@ -72,6 +73,7 @@ function App() {
           <Route path="projects" element={<Projects />} />
           <Route path="tasks" element={<Tasks />} />
           <Route path="Makeleader" element={<Makeleader />} />
+          <Route path="FeedbackPage" element={<FeedbackPage />} />
           <Route path="mytasks" element={<MyTasks />} />
           <Route path="ProjectDashboard" element={<ProjectDashboard />} />
           <Route path="ProjectTasksViewer" element={<ProjectTasksViewer />} />

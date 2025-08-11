@@ -488,108 +488,13 @@ function Layout() {
               <span className="px-1 py-0.5 text-xs bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-400 rounded">On track</span>
             </div>
 
-            <div className="flex items-center gap-2">
-
-              <div className="relative filter-dropdown">
-                <button
-                  onClick={() => setFilterOpen(!filterOpen)}
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs border border-gray-200 dark:border-purple-500/30 rounded-lg bg-white dark:bg-black/90 text-gray-700 dark:text-purple-300 hover:bg-gray-50 dark:hover:bg-black/80 shadow-sm transition-all duration-200 hover:shadow-md dark:shadow-purple-500/20"
-                >
-                  <Filter className="w-4 h-4" />
-                  Filter
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-                {filterOpen && (
-                  <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-black/95 border border-gray-200 dark:border-purple-500/30 rounded shadow-lg z-[99999] p-3">
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                          Status
-                        </label>
-                        <select className="w-full px-2 py-1 text-xs border border-gray-200 dark:border-purple-500/30 rounded bg-white dark:bg-black/90 text-gray-900 dark:text-purple-100 focus:outline-none focus:ring-1 focus:ring-purple-500">
-                          <option>All Status</option>
-                          <option>Active</option>
-                          <option>Completed</option>
-                          <option>On Hold</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-gray-700 dark:text-purple-300 mb-1">
-                          Assignee
-                        </label>
-                        <select className="w-full px-2 py-1 text-xs border border-gray-200 dark:border-purple-500/30 rounded bg-white dark:bg-black/90 text-gray-900 dark:text-purple-100 focus:outline-none focus:ring-1 focus:ring-purple-500">
-                          <option>All Members</option>
-                          <option>Me</option>
-                          <option>Team Lead</option>
-                          <option>Unassigned</option>
-                        </select>
-                      </div>
-                      <div className="flex justify-between pt-2">
-                        <button
-                          onClick={() => setFilterOpen(false)}
-                          className="px-2 py-1 text-xs text-gray-600 dark:text-purple-400 hover:text-gray-900 dark:hover:text-purple-200"
-                        >
-                          Clear
-                        </button>
-                        <button
-                          onClick={() => setFilterOpen(false)}
-                          className="px-2 py-1 text-xs bg-purple-600 text-white rounded hover:bg-purple-700"
-                        >
-                          Apply
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="relative sort-dropdown">
-                <button
-                  onClick={() => setSortOpen(!sortOpen)}
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs border border-gray-200 dark:border-purple-500/30 rounded-lg bg-white dark:bg-black/90 text-gray-700 dark:text-purple-300 hover:bg-gray-50 dark:hover:bg-black/80 shadow-sm transition-all duration-200 hover:shadow-md dark:shadow-purple-500/20"
-                >
-                  <ArrowUpDown className="w-4 h-4" />
-                  Sort
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-                {sortOpen && (
-                  <div className="absolute right-0 top-full mt-1 w-40 bg-white dark:bg-black/95 border border-gray-200 dark:border-purple-500/30 rounded shadow-lg z-[99999] p-2">
-                    <div className="space-y-1">
-                      <button
-                        onClick={() => setSortOpen(false)}
-                        className="w-full text-left px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-purple-700/40 rounded dark:text-purple-100"
-                      >
-                        Date Created
-                      </button>
-                      <button
-                        onClick={() => setSortOpen(false)}
-                        className="w-full text-left px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-purple-700/40 rounded dark:text-purple-100"
-                      >
-                        Due Date
-                      </button>
-                      <button
-                        onClick={() => setSortOpen(false)}
-                        className="w-full text-left px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-purple-700/40 rounded dark:text-purple-100"
-                      >
-                        Priority
-                      </button>
-                      <button
-                        onClick={() => setSortOpen(false)}
-                        className="w-full text-left px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-purple-700/40 rounded dark:text-purple-100"
-                      >
-                        Alphabetical
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
+           
 
               <Link
                 to="/TeamManager"
                 className="px-3 py-1.5 text-xs bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 shadow-md transition-all duration-200 hover:shadow-lg transform hover:scale-105"
                 title="View created teams"
               >
-
                 Teams
               </Link>
 

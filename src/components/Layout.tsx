@@ -33,6 +33,7 @@ import {
   TrendingUp,
   Target,
   Activity,
+  MessageSquare,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import FirebaseConnectionStatus from "./FirebaseConnectionStatus";
@@ -373,6 +374,18 @@ function Layout() {
                   >
                     <Users className="w-4 h-4" />
                     Make Team Lead
+                  </Link>
+                  <Link
+                    to="/FeedbackPage"
+                    onClick={closeSidebar}
+                    className={`flex items-center gap-3 px-3 py-1.5 text-sm rounded-lg transition-all duration-200 hover:shadow-sm ${
+                      isActive("/FeedbackPage")
+                        ? "bg-gradient-to-r from-cyan-100 to-orange-100 dark:bg-gradient-to-r dark:from-cyan-900/30 dark:to-orange-900/30 text-black dark:text-white font-medium border border-cyan-300 dark:border-orange-500/40"
+                        : "text-black dark:text-white hover:bg-gradient-to-r hover:from-cyan-50 hover:to-orange-50 dark:hover:bg-gradient-to-r dark:hover:from-cyan-900/20 dark:hover:to-orange-900/20"
+                    }`}
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    HR Feedback
                   </Link>
                 </div>
               )}

@@ -3,7 +3,7 @@ import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where
 import { db, isFirebaseConnected } from "../lib/firebase";
 import { useAuthStore } from "../store/authStore";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Plus,
   Search,

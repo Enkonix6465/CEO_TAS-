@@ -431,24 +431,6 @@ const Dashboard = () => {
     ],
   };
 
-  // Get performance label based on percentage
-  const getPerformanceLabel = (percent: number) => {
-    if (percent >= 80) {
-      return { label: "Excellent", color: "bg-green-500 dark:bg-green-600" };
-    } else if (percent >= 60) {
-      return { label: "Good", color: "bg-blue-500 dark:bg-blue-600" };
-    } else if (percent >= 40) {
-      return { label: "Average", color: "bg-yellow-500 dark:bg-yellow-600" };
-    } else {
-      return { label: "Needs Improvement", color: "bg-red-500 dark:bg-red-600" };
-    }
-  };
-
-  // Get employee name by ID
-  const getEmployeeName = (employeeId: string) => {
-    const employee = employees.find((emp) => emp.id === employeeId);
-    return employee ? employee.name : "Unknown";
-  };
   
  
   const getProjectTasks = (projectId: string) => {

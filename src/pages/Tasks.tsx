@@ -3,6 +3,7 @@ import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where
 import { db, isFirebaseConnected } from "../lib/firebase";
 import { useAuthStore } from "../store/authStore";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   Plus,
   Search,
@@ -26,6 +27,7 @@ import {
 import toast from "react-hot-toast";
 
 function Tasks() {
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
@@ -57,6 +59,14 @@ function Tasks() {
       try {
         setHasError(false);
         setupTaskListeners();
+        
+        // Check if there's a filter from Dashboard page
+        const statusFilter = localStorage.getItem('taskStatusFilter');
+        if (statusFilter) {
+          setFilterStatus(statusFilter);
+          // Clear the filter after using it
+          localStorage.removeItem('taskStatusFilter');
+        }
         
         if (connectionStatus === 'offline' && retryCount < 3) {
           retryTimer = setTimeout(() => {
@@ -236,10 +246,27 @@ function Tasks() {
     }
   };
 
+  // Function to check if a task is overdue
+  const isTaskOverdue = (task) => {
+    if (!task || !task.dueDate || task.status === 'completed' || task.status === 'cancelled') return false;
+    const dueDate = new Date(task.dueDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return dueDate < today;
+  };
+
   const filteredTasks = tasks.filter((task) => {
     const matchesSearch = task.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          task.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === "all" || task.status === filterStatus;
+    
+    // Special handling for overdue filter
+    let matchesStatus = true;
+    if (filterStatus === "overdue") {
+      matchesStatus = isTaskOverdue(task);
+    } else {
+      matchesStatus = filterStatus === "all" || task.status === filterStatus;
+    }
+    
     const matchesPriority = filterPriority === "all" || task.priority === filterPriority;
     return matchesSearch && matchesStatus && matchesPriority;
   });
@@ -400,6 +427,7 @@ function Tasks() {
             <option value="pending">Pending</option>
             <option value="in-progress">In Progress</option>
             <option value="completed">Completed</option>
+            <option value="overdue">Overdue</option>
           </select>
           
           <select
@@ -440,7 +468,7 @@ function Tasks() {
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredTasks.map((task, index) => {
               const StatusIcon = getStatusIcon(task.status);
               const project = projects.find(p => p.id === task.projectId);
@@ -452,13 +480,14 @@ function Tasks() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 group"
+                  className={`bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border-2 ${isTaskOverdue(task) ? 'border-red-500/50 dark:border-red-500/50' : 'border-purple-500/50 dark:border-purple-500/50'} rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 group h-full flex flex-col cursor-pointer`}
+                  onClick={() => navigate(`/task/${task.id}`)}
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4 flex-1">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={() => updateTaskStatus(task.id, task.status === 'completed' ? 'pending' : 'completed')}
-                        className="p-2 hover:bg-violet-100 dark:hover:bg-violet-500/20 rounded-lg transition-colors mt-1"
+                        className="p-1.5 hover:bg-violet-100 dark:hover:bg-violet-500/20 rounded-lg transition-colors"
                       >
                         <StatusIcon className={`w-5 h-5 ${
                           task.status === 'completed' ? 'text-emerald-500' :
@@ -467,54 +496,13 @@ function Tasks() {
                         }`} />
                       </button>
                       
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className={`font-bold text-lg ${
-                            task.status === 'completed' 
-                              ? 'line-through text-gray-500 dark:text-gray-400' 
-                              : 'text-slate-800 dark:text-white'
-                          }`}>
-                            {task.title}
-                          </h3>
-                          
-                          <span className={`px-2 py-1 rounded-lg text-xs font-medium border ${getStatusColor(task.status)}`}>
-                            {task.status}
-                          </span>
-                          
-                          <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getPriorityColor(task.priority)}`}>
-                            {task.priority}
-                          </span>
-                        </div>
-                        
-                        {task.description && (
-                          <p className="text-sm text-violet-600/70 dark:text-violet-300/70 mb-3">
-                            {task.description}
-                          </p>
-                        )}
-                        
-                        <div className="flex items-center gap-4 text-xs text-violet-600/70 dark:text-violet-300/70">
-                          {project && (
-                            <div className="flex items-center gap-1">
-                              <Target className="w-3 h-3" />
-                              <span>{project.name}</span>
-                            </div>
-                          )}
-                          
-                          {assigneeUser && (
-                            <div className="flex items-center gap-1">
-                              <User className="w-3 h-3" />
-                              <span>{assigneeUser.fullName || assigneeUser.name}</span>
-                            </div>
-                          )}
-                          
-                          {task.dueDate && (
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              <span>{new Date(task.dueDate).toLocaleDateString()}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                      <h3 className={`font-bold text-lg truncate ${
+                        task.status === 'completed' 
+                          ? 'line-through text-gray-500 dark:text-gray-400' 
+                          : 'text-slate-800 dark:text-white'
+                      }`}>
+                        {task.title}
+                      </h3>
                     </div>
                     
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -530,6 +518,54 @@ function Tasks() {
                       >
                         <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
                       </button>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <span className={`px-2 py-1 rounded-lg text-xs font-medium border ${getStatusColor(task.status)}`}>
+                      {task.status}
+                    </span>
+                    
+                    <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getPriorityColor(task.priority)}`}>
+                      {task.priority}
+                    </span>
+                    
+                    {isTaskOverdue(task) && (
+                      <span className="px-2 py-1 rounded-lg text-xs font-medium bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/30 flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        Overdue
+                      </span>
+                    )}
+                  </div>
+                  
+                  {task.description && (
+                    <p className="text-sm text-violet-600/70 dark:text-violet-300/70 mb-3 line-clamp-2">
+                      {task.description}
+                    </p>
+                  )}
+                  
+                  <div className="mt-auto pt-3 border-t border-violet-100/50 dark:border-violet-500/20">
+                    <div className="grid grid-cols-1 gap-2 text-xs text-violet-600/70 dark:text-violet-300/70">
+                      {project && (
+                        <div className="flex items-center gap-1">
+                          <Target className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">{project.name}</span>
+                        </div>
+                      )}
+                      
+                      {assigneeUser && (
+                        <div className="flex items-center gap-1">
+                          <User className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">{assigneeUser.fullName || assigneeUser.name}</span>
+                        </div>
+                      )}
+                      
+                      {task.dueDate && (
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-3 h-3 flex-shrink-0" />
+                          <span>{new Date(task.dueDate).toLocaleDateString()}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>

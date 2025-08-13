@@ -562,17 +562,17 @@ const KanbanPage = () => {
     const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== "completed";
 
     const getCardBgColor = () => {
-      if (isOverdue) return 'enhanced-glass-card border-red-300/40 dark:border-red-400/50 bg-gradient-to-br from-red-50/70 via-pink-50/60 to-rose-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
+      if (isOverdue) return 'enhanced-glass-card border-2 border-red-300/40 dark:border-red-400/50 bg-gradient-to-br from-red-50/70 via-pink-50/60 to-rose-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
 
       switch (task.status) {
         case 'completed':
-          return 'enhanced-glass-card border-blue-300/40 dark:border-purple-400/50 bg-gradient-to-br from-blue-50/70 via-gray-50/60 to-slate-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
+          return 'enhanced-glass-card border-2 border-purple-300/50 dark:border-purple-400/50 bg-gradient-to-br from-violet-50/70 via-gray-50/60 to-slate-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
         case 'in_progress':
-          return 'enhanced-glass-card border-blue-300/40 dark:border-purple-400/50 bg-gradient-to-br from-blue-50/70 via-sky-50/60 to-indigo-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
+          return 'enhanced-glass-card border-2 border-purple-300/50 dark:border-purple-400/50 bg-gradient-to-br from-violet-50/70 via-sky-50/60 to-indigo-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
         case 'review':
-          return 'enhanced-glass-card border-gray-300/40 dark:border-purple-300/50 bg-gradient-to-br from-gray-50/70 via-slate-50/60 to-blue-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
+          return 'enhanced-glass-card border-2 border-purple-300/50 dark:border-purple-400/50 bg-gradient-to-br from-violet-50/70 via-slate-50/60 to-blue-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
         default:
-          return 'enhanced-glass-card border-gray-300/40 dark:border-purple-400/50 bg-gradient-to-br from-gray-50/70 via-slate-50/60 to-blue-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
+          return 'enhanced-glass-card border-2 border-purple-300/50 dark:border-purple-400/50 bg-gradient-to-br from-violet-50/70 via-slate-50/60 to-blue-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
       }
     };
 
@@ -594,6 +594,10 @@ const KanbanPage = () => {
         }}
         className={`${getCardBgColor()} rounded-2xl border p-5 mb-4 transition-all duration-500 cursor-pointer group relative overflow-hidden backdrop-blur-xl hover:-translate-y-2 hover:scale-[1.02] moving-border-subtle`}
       >
+        {/* Ticket ID Badge */}
+        <div className="absolute top-2 right-2 px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-md border border-purple-200 dark:border-purple-700/50">
+          #{task.task_id || 'T-' + Math.floor(Math.random() * 1000)}
+        </div>
         {/* Enhanced Priority stripe */}
         <div className={`absolute top-0 left-0 w-full h-2 rounded-t-2xl ${
           task.priority === "high" ? "bg-gradient-to-r from-red-500 via-red-600 to-red-700 dark:from-purple-500 dark:via-purple-600 dark:to-purple-700 animate-pulse" :
@@ -601,8 +605,12 @@ const KanbanPage = () => {
           "bg-gradient-to-r from-gray-500 via-gray-600 to-gray-700 dark:from-purple-300 dark:via-purple-400 dark:to-purple-500"
         }`} />
 
+        {/* Ticket ID Badge */}
+        <div className="absolute top-2 right-2 px-2 py-1 text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md border border-purple-200 dark:border-purple-700/50 font-medium shadow-sm backdrop-blur-sm">
+          #{task.task_id || Math.floor(Math.random() * 10000).toString().padStart(4, '0')}
+        </div>
+        
         {/* Floating glass orbs */}
-        <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-white/30 dark:bg-purple-400/40 animate-pulse" />
         <div className="absolute bottom-3 left-3 w-1 h-1 rounded-full bg-white/40 dark:bg-purple-500/40 animate-pulse" style={{animationDelay: '1s'}} />
 
         {/* Header */}
@@ -1108,7 +1116,7 @@ const KanbanPage = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-750 rounded-xl p-4 border border-gray-200 dark:border-gray-600 hover:shadow-lg transition-all cursor-pointer group"
+                    className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-750 rounded-xl p-4 border border-purple-200/50 dark:border-purple-500/30 hover:shadow-lg transition-all cursor-pointer group"
                     onClick={() => {
                       setSelectedTask(task);
                       setShowTaskDetailModal(true);
@@ -1225,7 +1233,7 @@ const KanbanPage = () => {
 
                       <motion.div
                         whileHover={{ y: -2, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
-                        className="flex-1 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-750 rounded-xl p-4 border border-gray-200 dark:border-gray-600 cursor-pointer group"
+                        className="flex-1 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-750 rounded-xl p-4 border border-purple-200/50 dark:border-purple-500/30 cursor-pointer group"
                         onClick={() => {
                           setSelectedTask(task);
                           setShowTaskDetailModal(true);
@@ -1329,7 +1337,7 @@ const KanbanPage = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.02 }}
-                        className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors cursor-pointer"
+                        className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors cursor-pointer border-l-4 border-purple-200/50 dark:border-purple-500/30"
                         onClick={() => {
                           setSelectedTask(task);
                           setShowTaskDetailModal(true);
@@ -1639,7 +1647,7 @@ const KanbanPage = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 40 }}
               transition={{ type: "spring", damping: 20, stiffness: 300 }}
-              className="relative w-full max-w-4xl bg-gradient-to-br from-white to-gray-50 dark:from-black/95 dark:to-black/90 rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-purple-500/30"
+              className="relative w-full max-w-4xl bg-gradient-to-br from-white to-gray-50 dark:from-black/95 dark:to-black/90 rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto border-2 border-purple-200/50 dark:border-purple-500/30"
             >
               <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white relative overflow-hidden">
                 <div className="absolute inset-0 bg-black/10"></div>

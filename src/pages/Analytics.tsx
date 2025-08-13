@@ -1,61 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import { collection, getDocs, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  AreaChart,
-  Area,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ComposedChart,
-} from "recharts";
-import {
-  TrendingUp,
-  TrendingDown,
-  Activity,
-  Users,
-  CheckCircle,
-  Filter,
-  Download,
-  Search,
-  ChevronDown,
-  BarChart3,
-  AlertCircle,
-  Clock,
-  Target,
-  Zap,
-  Star,
-  Calendar,
-  Eye,
-  FileText,
-  ArrowRight,
-  User,
-  Award,
-  Timer,
-  RefreshCw,
-  Plus,
-} from "lucide-react";
+import { Bar, XAxis, YAxis, ResponsiveContainer, Line, PieChart, Pie, Cell, AreaChart, Area, Tooltip, Legend, ComposedChart } from "recharts";
+import { TrendingUp, Activity, Users, CheckCircle, Filter, Download, Search, ChevronDown, BarChart3, AlertCircle, Eye, ArrowRight, User } from "lucide-react";
 import toast from "react-hot-toast";
-const CustomTooltip = ({ performanceData, children }) => {
+const CustomTooltip: React.FC<{ performanceData: any; children: React.ReactNode }> = ({ performanceData, children }) => {
   const [show, setShow] = useState(false);
-
-  console.log("Tooltip performanceData:", performanceData); // Debugging
 
   return (
     <div
@@ -115,14 +66,24 @@ const Analytics = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [dateRange, setDateRange] = useState("30");
   const [selectedView, setSelectedView] = useState("overview");
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<any | null>(null);
+  const [dateChartData, setDateChartData] = useState<any[]>([]);
+  const [monthChartData, setMonthChartData] = useState<any[]>([]);
 
-  const [groupedEmployees, setGroupedEmployees] = useState([]);
+  const [groupedEmployees, setGroupedEmployees] = useState<any[]>([]);
 
-  const [performanceData, setPerformanceData] = useState({});
+  const [performanceData, setPerformanceData] = useState<any>({});
   const [connectionStatus, setConnectionStatus] = useState<
     "connecting" | "connected" | "offline"
   >("connecting");
+
+  const safeDb = db as any;
+
+  // Prevent unused warnings for optional states not yet rendered in UI
+  void teams;
+  void dateChartData;
+  void monthChartData;
+  void setGroupedEmployees;
 
   // Pleasant color palette
   const colors = {
@@ -150,7 +111,7 @@ const Analytics = () => {
 
         // Real-time listener for tasks
         const tasksUnsub = onSnapshot(
-          collection(db, "tasks"),
+          collection(safeDb, "tasks"),
           (snapshot) => {
             if (mounted) {
               const tasksData = snapshot.docs.map((doc) => ({
@@ -207,7 +168,7 @@ const Analytics = () => {
 
         // Real-time listener for projects
         const projectsUnsub = onSnapshot(
-          collection(db, "projects"),
+          collection(safeDb, "projects"),
           (snapshot) => {
             if (mounted) {
               const projectsData = snapshot.docs.map((doc) => ({
@@ -224,7 +185,7 @@ const Analytics = () => {
 
         // Real-time listener for employees
         const employeesUnsub = onSnapshot(
-          collection(db, "employees"),
+          collection(safeDb, "employees"),
           (snapshot) => {
             if (mounted) {
               const employeesData = snapshot.docs.map((doc) => ({
@@ -241,7 +202,7 @@ const Analytics = () => {
 
         // Real-time listener for teams
         const teamsUnsub = onSnapshot(
-          collection(db, "teams"),
+          collection(safeDb, "teams"),
           (snapshot) => {
             if (mounted) {
               const teamsData = snapshot.docs.map((doc) => ({
@@ -295,8 +256,8 @@ const Analytics = () => {
       reassigned: 0,
     };
 
-    const dateMap = {};
-    const monthMap = {};
+  const dateMap: Record<string, any> = {};
+  const monthMap: Record<string, any> = {};
 
     empTasks.forEach((task) => {
       const {
@@ -346,20 +307,20 @@ const Analytics = () => {
     const onTimeRate =
       perf.completed > 0 ? (perf.onTime / perf.completed) * 100 : 0;
 
-    const team = groupedEmployees.find((g) =>
-      g.members.some((m) => m.id === selectedEmployee.id)
+    const team = groupedEmployees.find((g: any) =>
+      g.members.some((m: any) => m.id === selectedEmployee.id)
     );
 
     const peerMembers =
-      team?.members?.filter((m) => m.id !== selectedEmployee.id) || [];
+      team?.members?.filter((m: any) => m.id !== selectedEmployee.id) || [];
     const peerTasks = tasks.filter((t) =>
-      peerMembers.some((m) => m.id === t.assigned_to)
+      peerMembers.some((m: any) => m.id === t.assigned_to)
     );
 
     const avgWorkload =
       peerMembers.length > 0 ? peerTasks.length / peerMembers.length : 0;
 
-    let penalty = perf.reassigned * 0.5; // 🔁 Each reassigned task deducts 0.5%
+    // Reassignment penalty (currently factored into score heuristics if needed)
 
     // 👇 Move reviewScore calculation here
     const empReviews = empTasks
@@ -411,14 +372,14 @@ const Analytics = () => {
       try {
         // Get all docs for this employee
         const q = query(
-          collection(db, "HR_feedback"),
+          collection(safeDb, "HR_feedback"),
           where("employeeId", "==", empId)
         );
         const snap = await getDocs(q);
 
         if (!snap.empty) {
-          let latestDoc = null;
-          let latestDate = null;
+          let latestDoc: any = null;
+          let latestDate: Date | null = null;
 
           snap.forEach((docSnap) => {
             const docId = docSnap.id; // e.g., GECHBrETQWcBmSAK1LS0rYKzmrk1_2025-08-07
@@ -433,7 +394,7 @@ const Analytics = () => {
           });
 
           if (latestDoc) {
-            const data = latestDoc.data();
+            const data: any = latestDoc.data();
             if (typeof data.score === "number") {
               hrFeedbackScore = data.score;
             }
@@ -446,18 +407,20 @@ const Analytics = () => {
       const hrWeighted = hrFeedbackScore * 0.1;
 
       const totalPerformanceScore = Math.max(
+        Number(
         (
           avgProductivityScore * 0.2 +
           completionRate * 0.25 +
           onTimeRate * 0.25 +
           avgReviewScore * 0.2 +
           hrWeighted
-        ).toFixed(2),
+          ).toFixed(2)
+        ),
         0
       );
 
       setPerformanceData({
-        ...perf,
+        ...(perf as any),
         completionRate,
         onTimeRate,
         workloadComparison: {
@@ -470,7 +433,7 @@ const Analytics = () => {
         totalPerformanceScore,
       });
 
-      const dateData = Object.entries(dateMap).map(([date, val]) => ({
+      const dateData = Object.entries(dateMap).map(([date, val]: [string, any]) => ({
         date,
         Completed: val.Completed,
         Reassigned: val.Reassigned,
@@ -478,7 +441,7 @@ const Analytics = () => {
         reassignedTaskIds: val.reassignedTaskIds,
       }));
 
-      const monthData = Object.entries(monthMap).map(([month, val]) => ({
+      const monthData = Object.entries(monthMap).map(([month, val]: [string, any]) => ({
         month,
         ...val,
       }));
@@ -524,7 +487,7 @@ const Analytics = () => {
                 : new Date(task.progress_updated_at);
               const dueDate = new Date(task.due_date);
               const delayDays = Math.ceil(
-                (completedDate - dueDate) / (1000 * 60 * 60 * 24)
+                ((completedDate as any) - (dueDate as any)) / (1000 * 60 * 60 * 24)
               );
               return acc + delayDays;
             }, 0) / lateTasks.length
@@ -630,7 +593,7 @@ const Analytics = () => {
   ];
 
   // Performance trends over last 30 days
-  const performanceTrends = [];
+  const performanceTrends: any[] = [];
   for (let i = 29; i >= 0; i--) {
     const date = new Date(new Date().getTime() - i * 24 * 60 * 60 * 1000);
     const dateStr = date.toISOString().split("T")[0];
@@ -666,7 +629,7 @@ const Analytics = () => {
   }
 
   // Department performance
-  const departmentData = {};
+  const departmentData: Record<string, any> = {};
   individualPerformance.forEach((emp) => {
     if (!departmentData[emp.department]) {
       departmentData[emp.department] = {
@@ -699,7 +662,7 @@ const Analytics = () => {
   const departmentPerformance = Object.values(departmentData);
 
   // Generate mock employee reports (would come from admin/team lead inputs)
-  const generateEmployeeReport = (employeeId) => {
+  const generateEmployeeReport = (_employeeId: string) => {
     const mockReports = {
       "emp-1": {
         adminReport: {
@@ -801,7 +764,7 @@ const Analytics = () => {
     };
 
     return (
-      mockReports[employeeId] || {
+      (mockReports as any)[_employeeId] || {
         adminReport: {
           author: "Admin",
           rating: 3.0,
@@ -850,10 +813,10 @@ const Analytics = () => {
 
   if (loading) {
     return (
-      <div className="h-full bg-gradient-to-br from-cyan-50 via-orange-50 to-cyan-100 dark:from-black dark:via-gray-900 dark:to-black flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400 font-medium">
+      <div className="h-full bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-50 dark:bg-gradient-to-br dark:from-slate-900 dark:via-violet-900/10 dark:to-indigo-900/5 flex items-center justify-center">
+        <div className="text-center p-8 bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl shadow-lg max-w-md">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-600 mx-auto mb-4"></div>
+          <p className="text-violet-600/70 dark:text-violet-300/70 font-medium">
             Loading analytics...
           </p>
         </div>
@@ -862,27 +825,72 @@ const Analytics = () => {
   }
 
   return (
-    <div className="h-full bg-gradient-to-br from-cyan-50 via-orange-50/30 to-cyan-100 dark:from-purple-900/20 dark:via-purple-800/30 dark:to-purple-900/20 overflow-y-auto">
+    <div className="h-full bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-50 dark:bg-gradient-to-br dark:from-slate-900 dark:via-violet-900/10 dark:to-indigo-900/5 flex flex-col relative overflow-hidden">
+      {/* Subtle Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-32 -right-32 w-64 h-64 bg-gradient-to-br from-violet-200/20 to-purple-200/20 dark:from-violet-900/10 dark:to-purple-900/10 rounded-full blur-3xl opacity-60"></div>
+        <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-gradient-to-br from-indigo-200/20 to-violet-200/20 dark:from-indigo-900/10 dark:to-violet-900/10 rounded-full blur-3xl opacity-60"></div>
+      </div>
+
       {/* Enhanced Header */}
-      <div className="liquid-glass border-b border-gray-200 dark:border-purple-500/30 p-4 sm:p-6 shadow-sm dark:shadow-purple-500/20">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="relative z-10 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border-b border-violet-200/50 dark:border-violet-500/20 px-6 py-4 shadow-lg">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-cyan-600 to-orange-600 rounded-2xl flex items-center justify-center">
-              <BarChart3 className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl shadow-lg">
+                <BarChart3 className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-purple-100">
-                **Advanced Analytics Dashboard**
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 dark:from-violet-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent">
+                  Analytics Dashboard
               </h1>
-              <p className="text-sm text-gray-500 dark:text-purple-300/70">
-                **Real-time performance insights & individual metrics**
+                <p className="text-xs text-violet-600/70 dark:text-violet-300/70 font-medium">
+                  Real-time performance insights & individual metrics
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+            <div
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold border backdrop-blur-sm flex items-center gap-2 ${
+                connectionStatus === 'connected'
+                  ? 'bg-emerald-50/80 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200/60 dark:border-emerald-500/30'
+                  : connectionStatus === 'connecting'
+                  ? 'bg-amber-50/80 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200/60 dark:border-amber-500/30'
+                  : 'bg-gray-50/80 dark:bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-200/60 dark:border-gray-500/30'
+              }`}
+            >
+              <div className={`w-2 h-2 rounded-full ${
+                connectionStatus === 'connected' ? 'bg-emerald-500' :
+                connectionStatus === 'connecting' ? 'bg-amber-500 animate-pulse' :
+                'bg-gray-500'
+              }`}></div>
+              {connectionStatus === 'connected' ? 'Live' :
+               connectionStatus === 'connecting' ? 'Connecting' :
+               'Offline'}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => window.location.reload()}
+              disabled={connectionStatus === 'connecting'}
+              className="p-2 bg-white/70 dark:bg-slate-800/70 text-violet-600 dark:text-violet-300 hover:bg-violet-100/70 dark:hover:bg-violet-700/40 border border-violet-200/60 dark:border-violet-500/30 rounded-xl transition-all duration-200 disabled:opacity-50 shadow-sm backdrop-blur-sm"
+            >
+              <Activity className={`w-4 h-4 ${connectionStatus === 'connecting' ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
+        </div>
+
+        {/* Compact Toolbar */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-violet-100/60 dark:bg-violet-500/10 px-3 py-2 rounded-xl border border-violet-200/60 dark:border-violet-500/30 backdrop-blur-sm">
+              <BarChart3 className="w-4 h-4 text-violet-600 dark:text-violet-400" />
+              <span className="text-sm font-bold text-violet-700 dark:text-violet-300">Analytics</span>
+            </div>
+            
             {/* View Selector */}
-            <div className="flex bg-gradient-to-r from-cyan-100 to-orange-100 dark:bg-gradient-to-r dark:from-cyan-900/20 dark:to-orange-900/20 rounded-lg p-1">
+            <div className="flex bg-violet-100/60 dark:bg-violet-500/10 rounded-xl p-1 border border-violet-200/60 dark:border-violet-500/30 backdrop-blur-sm">
               {[
                 { id: "overview", label: "Overview", icon: BarChart3 },
                 { id: "individual", label: "Individual", icon: User },
@@ -891,10 +899,10 @@ const Analytics = () => {
                 <button
                   key={view.id}
                   onClick={() => setSelectedView(view.id)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                     selectedView === view.id
-                      ? "bg-white dark:bg-purple-500/30 text-purple-600 dark:text-purple-300 shadow-sm"
-                      : "text-gray-600 dark:text-purple-400 hover:text-gray-900 dark:hover:text-purple-200"
+                      ? "bg-white dark:bg-slate-800/80 text-violet-600 dark:text-violet-300 shadow-sm"
+                      : "text-violet-600/70 dark:text-violet-300/70 hover:text-violet-700 dark:hover:text-violet-200"
                   }`}
                 >
                   <view.icon className="w-4 h-4" />
@@ -902,24 +910,25 @@ const Analytics = () => {
                 </button>
               ))}
             </div>
+            </div>
 
             {/* Search & Filters */}
             <div className="flex items-center gap-2">
               <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-purple-300" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-violet-400 dark:text-violet-300" />
                 <input
                   type="text"
                   placeholder="Search employees..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 text-sm border border-gray-200 dark:border-purple-500/30 rounded-lg bg-white dark:bg-purple-500/20 text-gray-900 dark:text-purple-100 placeholder:dark:text-purple-300/70 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm dark:shadow-purple-500/20 backdrop-blur-sm w-48"
+                className="pl-10 pr-4 py-2 text-sm border border-violet-200/60 dark:border-violet-500/30 rounded-xl bg-white/70 dark:bg-slate-800/70 text-violet-700 dark:text-violet-300 placeholder:text-violet-400/70 dark:placeholder:text-violet-300/50 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent shadow-sm backdrop-blur-sm w-48"
                 />
               </div>
 
               <div className="relative">
                 <button
                   onClick={() => setFilterOpen(!filterOpen)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 dark:border-purple-500/30 rounded-lg bg-white dark:bg-purple-500/20 text-gray-700 dark:text-purple-300 hover:bg-gray-50 dark:hover:bg-purple-500/30 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm border border-violet-200/60 dark:border-violet-500/30 rounded-xl bg-white/70 dark:bg-slate-800/70 text-violet-700 dark:text-violet-300 hover:bg-violet-100/70 dark:hover:bg-violet-700/40 transition-colors backdrop-blur-sm"
                 >
                   <Filter className="w-4 h-4" />
                   <span>{dateRange} days</span>
@@ -927,7 +936,7 @@ const Analytics = () => {
                 </button>
 
                 {filterOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-purple-500/20 border border-gray-200 dark:border-purple-500/30 rounded-xl shadow-xl z-[9999] py-2">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white/95 dark:bg-slate-800/95 border border-violet-200/60 dark:border-violet-500/30 rounded-xl shadow-xl z-[9999] py-2 backdrop-blur-xl">
                     {["7", "30", "90", "365"].map((days) => (
                       <button
                         key={days}
@@ -935,7 +944,7 @@ const Analytics = () => {
                           setDateRange(days);
                           setFilterOpen(false);
                         }}
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-purple-500/30 text-gray-700 dark:text-purple-300"
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-violet-100/70 dark:hover:bg-violet-700/40 text-violet-700 dark:text-violet-300"
                       >
                         Last {days} days
                       </button>
@@ -946,17 +955,16 @@ const Analytics = () => {
 
               <button
                 onClick={exportAnalytics}
-                className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg transform hover:scale-105"
+              className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl transition-all shadow-lg transform hover:scale-105"
               >
                 <Download className="w-4 h-4" />
                 <span className="hidden sm:inline">Export</span>
               </button>
-            </div>
           </div>
         </div>
       </div>
 
-      <div className="p-4 sm:p-6">
+      <div className="flex-1 relative z-10 p-6 overflow-y-auto">
         <AnimatePresence mode="wait">
           {selectedView === "overview" && (
             <motion.div
@@ -974,51 +982,86 @@ const Analytics = () => {
                     label: "Total Tasks",
                     value: tasks.length || 44,
                     change: "+12%",
-                    color: "blue",
+                    color: "violet",
                     description: "All active tasks",
+                    route: "/dashboard",
+                    onClick: () => {
+                      localStorage.setItem('taskStatusFilter', 'all');
+                      window.location.href = '/tasks';
+                    }
                   },
                   {
                     icon: CheckCircle,
                     label: "Completed",
                     value: taskStatusData[0].value,
                     change: "+8%",
-                    color: "green",
+                    color: "emerald",
                     description: "Successfully completed",
+                    route: "/dashboard",
+                    filter: "completed",
+                    onClick: () => {
+                      localStorage.setItem('taskStatusFilter', 'completed');
+                      window.location.href = '/tasks';
+                    }
                   },
                   {
                     icon: AlertCircle,
+                    label: "Pending",
+                    value: taskStatusData[2].value,
+                    change: "-5%",
+                    color: "amber",
+                    description: "Waiting to be started",
+                    route: "/dashboard",
+                    filter: "pending",
+                    onClick: () => {
+                      localStorage.setItem('taskStatusFilter', 'pending');
+                      window.location.href = '/tasks';
+                    }
+                  },
+                  {
+                    icon: Activity,
                     label: "Overdue",
                     value: taskStatusData[3].value,
                     change: "-15%",
+                    route: "/dashboard",
+                    filter: "overdue",
                     color: "red",
                     description: "Needs immediate attention",
+                    onClick: () => {
+                      localStorage.setItem('taskStatusFilter', 'overdue');
+                      window.location.href = '/tasks';
+                    }
                   },
-                  {
-                    icon: Users,
-                    label: "Team Members",
-                    value: employees.length || 12,
-                    change: "+2",
-                    color: "purple",
-                    description: "Active team members",
-                  },
+                 
                 ].map((stat, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="group bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                    className="group bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl border-2 border-purple-500/50 dark:border-purple-500/30 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                    onClick={() => {
+                      if (stat.onClick) {
+                        stat.onClick();
+                      } else if (stat.route) {
+                        navigate(stat.route);
+                        // If there's a filter to apply, store it in localStorage for the dashboard to use
+                        if (stat.filter) {
+                          localStorage.setItem('dashboardFilter', stat.filter);
+                        }
+                      }
+                    }}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div
-                        className={`p-3 bg-gradient-to-r ${
-                          stat.color === "blue"
-                            ? "from-blue-500 to-blue-600"
-                            : stat.color === "green"
-                            ? "from-green-500 to-green-600"
+                        className={`p-3 bg-gradient-to-br ${
+                          stat.color === "violet"
+                            ? "from-violet-500 to-purple-600"
+                            : stat.color === "emerald"
+                            ? "from-emerald-500 to-green-600"
                             : stat.color === "red"
-                            ? "from-red-500 to-red-600"
-                            : "from-purple-500 to-purple-600"
+                            ? "from-red-500 to-pink-600"
+                            : "from-indigo-500 to-blue-600"
                         } rounded-xl shadow-lg group-hover:scale-110 transition-transform`}
                       >
                         <stat.icon className="w-6 h-6 text-white" />
@@ -1026,21 +1069,21 @@ const Analytics = () => {
                       <div
                         className={`text-sm font-semibold px-2 py-1 rounded-full ${
                           stat.change.startsWith("+")
-                            ? "text-green-600 bg-green-100"
-                            : "text-red-600 bg-red-100"
+                            ? "text-emerald-600 bg-emerald-100/80 dark:bg-emerald-500/20"
+                            : "text-red-600 bg-red-100/80 dark:bg-red-500/20"
                         }`}
                       >
                         {stat.change}
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                      <p className="text-sm text-violet-600/70 dark:text-violet-300/70 mb-1">
                         {stat.label}
                       </p>
-                      <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+                      <p className="text-3xl font-bold text-violet-800 dark:text-violet-200 mb-1">
                         {stat.value}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-violet-500/70 dark:text-violet-400/70">
                         {stat.description}
                       </p>
                     </div>
@@ -1054,9 +1097,9 @@ const Analytics = () => {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="liquid-glass-card"
+                  className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl border-2 border-purple-500/50 dark:border-purple-500/30 p-6"
                 >
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                  <h3 className="text-lg font-bold text-violet-800 dark:text-violet-200 mb-4">
                     Task Status Distribution
                   </h3>
                   <div className="h-64">
@@ -1069,8 +1112,8 @@ const Analytics = () => {
                           innerRadius={50}
                           outerRadius={100}
                           dataKey="value"
-                          label={({ name, value, percent }) =>
-                            `${name}: ${(percent * 100).toFixed(0)}%`
+                          label={({ name, percent }: any) =>
+                            `${name}: ${((percent || 0) * 100).toFixed(0)}%`
                           }
                         >
                           {taskStatusData.map((entry, index) => (
@@ -1085,16 +1128,16 @@ const Analytics = () => {
                     {taskStatusData.map((item, index) => (
                       <div
                         key={index}
-                        className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                        className="flex items-center gap-2 p-2 bg-violet-50/80 dark:bg-violet-500/10 rounded-lg border border-violet-200/60 dark:border-violet-500/30"
                       >
                         <div
                           className="w-3 h-3 rounded-full"
                           style={{ backgroundColor: item.color }}
                         ></div>
-                        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                        <span className="text-xs font-medium text-violet-700 dark:text-violet-300">
                           {item.name}
                         </span>
-                        <span className="text-xs font-bold text-gray-900 dark:text-gray-100 ml-auto">
+                        <span className="text-xs font-bold text-violet-800 dark:text-violet-200 ml-auto">
                           {item.value}
                         </span>
                       </div>
@@ -1107,9 +1150,9 @@ const Analytics = () => {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.1 }}
-                  className="liquid-glass-card"
+                  className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl border-2 border-purple-500/50 dark:border-purple-500/30 p-6"
                 >
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                  <h3 className="text-lg font-bold text-violet-800 dark:text-violet-200 mb-4">
                     Performance Trends
                   </h3>
                   <div className="h-64">
@@ -1205,14 +1248,13 @@ const Analytics = () => {
               className="space-y-6"
             >
               {/* Individual Performance Header */}
-              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-3">
-                  <User className="w-7 h-7 text-blue-600" />
-                  **Individual Performance Analytics**
+              <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl border-2 border-purple-500/50 dark:border-purple-500/30 p-6">
+                <h2 className="text-2xl font-bold text-violet-800 dark:text-violet-200 mb-2 flex items-center gap-3">
+                  <User className="w-7 h-7 text-violet-600" />
+                  Individual Performance Analytics
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400">
-                  **Detailed timing-based performance metrics for each team
-                  member**
+                <p className="text-violet-600/70 dark:text-violet-300/70">
+                  Detailed timing-based performance metrics for each team member
                 </p>
               </div>
 
@@ -1229,12 +1271,12 @@ const Analytics = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className={`group bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-2 ${
+                      className={`group bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl border-2 cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-2 ${
                         emp.performanceLevel.level === "critical"
-                          ? "border-red-300 dark:border-red-700"
+                          ? "border-red-500/70 dark:border-red-500/50"
                           : emp.performanceLevel.level === "needs_improvement"
-                          ? "border-orange-300 dark:border-orange-700"
-                          : "border-gray-200/50 dark:border-gray-700/50"
+                          ? "border-orange-500/70 dark:border-orange-500/50"
+                          : "border-purple-500/50 dark:border-purple-500/30"
                       }`}
                       onClick={() => setSelectedEmployee(emp)}
                     >
@@ -1353,9 +1395,16 @@ const Analytics = () => {
                         )}
 
                         {/* Action Button */}
-                        <button className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-lg transition-all group-hover:scale-105 flex items-center justify-center gap-2">
+                        <button 
+                          className="w-full px-4 py-3 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-semibold rounded-xl transition-all group-hover:scale-105 flex items-center justify-center gap-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            localStorage.setItem('selectedEmployeeId', emp.id);
+                            navigate('/performance-matrix');
+                          }}
+                        >
                           <Eye className="w-4 h-4" />
-                          **View Detailed Report**
+                          View Detailed Report
                           <ArrowRight className="w-4 h-4" />
                         </button>
                       </div>
@@ -1374,21 +1423,21 @@ const Analytics = () => {
               className="space-y-6"
             >
               {/* Trends Header */}
-              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-3">
-                  <TrendingUp className="w-7 h-7 text-green-600" />
-                  **Performance Trends & Insights**
+              <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl border-2 border-purple-500/50 dark:border-purple-500/30 p-6">
+                <h2 className="text-2xl font-bold text-violet-800 dark:text-violet-200 mb-2 flex items-center gap-3">
+                  <TrendingUp className="w-7 h-7 text-emerald-600" />
+                  Performance Trends & Insights
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400">
-                  **Long-term performance analysis and productivity trends**
+                <p className="text-violet-600/70 dark:text-violet-300/70">
+                  Long-term performance analysis and productivity trends
                 </p>
               </div>
 
               {/* Comprehensive Trends Chart */}
-              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 p-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-blue-600" />
-                  **30-Day Performance Trends**
+              <div className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl rounded-2xl border-2 border-purple-500/50 dark:border-purple-500/30 p-6">
+                <h3 className="text-lg font-bold text-violet-800 dark:text-violet-200 mb-4 flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-violet-600" />
+                  30-Day Performance Trends
                 </h3>
                 <div className="h-96">
                   <ResponsiveContainer width="100%" height="100%">
@@ -1451,7 +1500,7 @@ const Analytics = () => {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+              className="bg-white/95 dark:bg-slate-800/95 rounded-2xl border-2 border-purple-500/50 dark:border-purple-500/30 w-full max-w-4xl max-h-[90vh] overflow-y-auto backdrop-blur-xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-6">
@@ -1516,28 +1565,28 @@ const Analytics = () => {
 
                 {/* Performance Metrics Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl">
+                  <div className="p-4 bg-gradient-to-r from-violet-50 to-purple-100 dark:from-violet-900/20 dark:to-purple-800/20 rounded-xl border-2 border-purple-500/50 dark:border-purple-500/30">
                     <CustomTooltip performanceData={performanceData}>
                       <div className="flex items-center gap-1 cursor-pointer">
                         Performance Matrix:{" "}
-                        <span className="font-bold text-purple-600 dark:text-purple-400">
+                        <span className="font-bold text-violet-600 dark:text-violet-400">
                           {performanceData.totalPerformanceScore}%
                         </span>
                       </div>
                     </CustomTooltip>
-                    <div className="text-sm text-blue-600 dark:text-blue-400">
+                    <div className="text-sm text-violet-600 dark:text-violet-400">
                       Overall Performance
                     </div>
                   </div>
-                  <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl">
-                    <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                  <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-100 dark:from-emerald-900/20 dark:to-green-800/20 rounded-xl border-2 border-purple-500/50 dark:border-purple-500/30">
+                    <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
                       {Math.round(selectedEmployee.onTimeRate)}%
                     </div>
-                    <div className="text-sm text-green-600 dark:text-green-400">
+                    <div className="text-sm text-emerald-600 dark:text-emerald-400">
                       On-Time Rate
                     </div>
                   </div>
-                  <div className="p-4 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 rounded-xl">
+                  <div className="p-4 bg-gradient-to-r from-red-50 to-pink-100 dark:from-red-900/20 dark:to-pink-800/20 rounded-xl border-2 border-purple-500/50 dark:border-purple-500/30">
                     <div className="text-2xl font-bold text-red-700 dark:text-red-300">
                       {selectedEmployee.overdueTasks}
                     </div>
@@ -1545,11 +1594,11 @@ const Analytics = () => {
                       Overdue Tasks
                     </div>
                   </div>
-                  <div className="p-4 bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 rounded-xl">
-                    <div className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">
-                      {selectedEmployee.avgDelayDays}d
+                  <div className="p-4 bg-gradient-to-r from-amber-50 to-yellow-100 dark:from-amber-900/20 dark:to-yellow-800/20 rounded-xl border-2 border-purple-500/50 dark:border-purple-500/30">
+                    <div className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+                      {selectedEmployee.avgDelayDays}
                     </div>
-                    <div className="text-sm text-yellow-600 dark:text-yellow-400">
+                    <div className="text-sm text-amber-600 dark:text-amber-400">
                       Avg Delay
                     </div>
                   </div>
@@ -1559,33 +1608,33 @@ const Analytics = () => {
 
                 {/* Recent Tasks */}
                 <div className="mt-6">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-gray-600" />
-                    **Recent Tasks**
+                  <h3 className="text-lg font-bold text-violet-800 dark:text-violet-200 mb-4 flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-violet-600" />
+                    Recent Tasks
                   </h3>
                   <div className="space-y-2">
-                    {selectedEmployee.recentTasks.map((task, index) => (
+                    {selectedEmployee.recentTasks.map((task: any) => (
                       <div
                         key={task.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg"
+                        className="flex items-center justify-between p-3 bg-violet-50/80 dark:bg-violet-500/10 rounded-lg border-2 border-purple-500/50 dark:border-purple-500/30"
                       >
                         <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                          <p className="text-sm font-medium text-violet-800 dark:text-violet-200">
                             {task.title}
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <p className="text-xs text-violet-600/70 dark:text-violet-300/70">
                             Due: {task.due_date} • Priority: {task.priority}
                           </p>
                         </div>
                         <div
                           className={`px-2 py-1 rounded-full text-xs font-semibold ${
                             task.status === "completed"
-                              ? "bg-green-100 text-green-800"
+                              ? "bg-emerald-100/80 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300"
                               : task.status === "in_progress"
-                              ? "bg-blue-100 text-blue-800"
+                              ? "bg-violet-100/80 dark:bg-violet-500/20 text-violet-800 dark:text-violet-300"
                               : task.status === "overdue"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-yellow-100 text-yellow-800"
+                              ? "bg-red-100/80 dark:bg-red-500/20 text-red-800 dark:text-red-300"
+                              : "bg-amber-100/80 dark:bg-amber-500/20 text-amber-800 dark:text-amber-300"
                           }`}
                         >
                           {task.status.replace("_", " ")}

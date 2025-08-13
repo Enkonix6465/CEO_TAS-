@@ -123,6 +123,19 @@ export default function EmployeePerformancePage() {
   }, [user?.uid]);
 
   useEffect(() => {
+    // Check if there's a selected employee ID in localStorage
+    const storedEmployeeId = localStorage.getItem('selectedEmployeeId');
+    if (storedEmployeeId && employees.length > 0) {
+      const employeeFromStorage = employees.find(emp => emp.id === storedEmployeeId);
+      if (employeeFromStorage) {
+        setSelectedEmployee(employeeFromStorage);
+        // Remove the ID from localStorage after using it
+        localStorage.removeItem('selectedEmployeeId');
+      }
+    }
+  }, [employees]);
+
+  useEffect(() => {
     if (!selectedEmployee || tasks.length === 0) return;
 
     const empTasks = tasks.filter(
@@ -494,9 +507,9 @@ export default function EmployeePerformancePage() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto px-4 py-6 custom-scrollbar">
           {selectedEmployee ? (
-            <div className="p-6 space-y-6">
+            <div className="px-2 space-y-6">
               {/* Employee Header */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}

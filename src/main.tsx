@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import App from './App.tsx';
 import './index.css';
+import 'antd/dist/reset.css';
 
 // Suppress React findDOMNode warning specifically for ReactQuill
 // This is a known issue with react-quill library that doesn't affect functionality

@@ -355,7 +355,12 @@ const Calendar = () => {
   };
 
   return (
-    <div className="h-full bg-gradient-to-br from-cyan-50 via-orange-50 to-cyan-100 dark:bg-gradient-to-br dark:from-purple-900/20 dark:via-purple-800/30 dark:to-purple-900/20 flex overflow-hidden">
+    <div className="h-full bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-50 dark:bg-gradient-to-br dark:from-slate-900 dark:via-violet-900/10 dark:to-indigo-900/5 flex overflow-hidden relative">
+      {/* Subtle Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-32 -right-32 w-64 h-64 bg-gradient-to-br from-violet-200/20 to-purple-200/20 dark:from-violet-900/10 dark:to-purple-900/10 rounded-full blur-3xl opacity-60"></div>
+        <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-gradient-to-br from-indigo-200/20 to-violet-200/20 dark:from-indigo-900/10 dark:to-violet-900/10 rounded-full blur-3xl opacity-60"></div>
+      </div>
       {/* Project Sidebar */}
       <motion.div
         initial={{ x: -300 }}
@@ -406,8 +411,8 @@ const Calendar = () => {
               onClick={() => setSelectedProject("all")}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                 selectedProject === "all"
-                  ? "bg-blue-100 text-blue-700 font-medium shadow-sm"
-                  : "text-gray-600 dark:text-gray-400 hover:bg-stone-200 dark:hover:bg-gray-700"
+                  ? "bg-violet-100 text-violet-700 font-medium shadow-sm dark:bg-violet-800/60 dark:text-violet-300"
+                  : "text-violet-600/70 dark:text-violet-300/70 hover:bg-violet-100/70 dark:hover:bg-violet-700/40"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -422,8 +427,8 @@ const Calendar = () => {
                 onClick={() => setSelectedProject(project.id)}
                 className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors group ${
                   selectedProject === project.id
-                    ? "bg-blue-100 text-blue-700 font-medium shadow-sm"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-stone-200 dark:hover:bg-gray-700"
+                    ? "bg-violet-100 text-violet-700 font-medium shadow-sm dark:bg-violet-800/60 dark:text-violet-300"
+                    : "text-violet-600/70 dark:text-violet-300/70 hover:bg-violet-100/70 dark:hover:bg-violet-700/40"
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -440,9 +445,9 @@ const Calendar = () => {
       {/* Main Calendar Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Compact Header Bar */}
-        <div className="liquid-glass border-b border-gray-200 dark:border-purple-500/30 p-3 flex items-center justify-between flex-shrink-0 shadow-sm dark:shadow-purple-500/20">
+        <div className="liquid-glass border-b border-violet-200/60 dark:border-violet-500/30 p-3 flex items-center justify-between flex-shrink-0 shadow-sm dark:shadow-violet-500/20">
           <div className="flex items-center gap-3">
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h1 className="text-lg font-semibold text-violet-800 dark:text-violet-200">
               {getDateLabel()}
             </h1>
             <div className="flex items-center gap-1">
@@ -464,7 +469,7 @@ const Calendar = () => {
           <div className="flex items-center gap-2">
             {/* View Mode Toggle */}
             {activeView === "calendar" && (
-              <div className="flex items-center bg-stone-200 dark:bg-gray-700 rounded-lg p-1">
+              <div className="flex items-center bg-violet-100/70 dark:bg-violet-700/40 rounded-lg p-1">
                 {[
                   { id: "day", icon: Eye, label: "Day" },
                   { id: "week", icon: List, label: "Week" },

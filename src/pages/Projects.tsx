@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, serverTimestamp } from "firebase/firestore";
 import { db, isFirebaseConnected } from "../lib/firebase";
 import { useAuthStore } from "../store/authStore";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   PlusCircle,
@@ -47,6 +48,7 @@ function Projects() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const { user } = useAuthStore();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -376,7 +378,8 @@ function Projects() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-600/30 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 group hover:-translate-y-2 ring-1 ring-white/20 dark:ring-slate-700/30"
+                  className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-600/30 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 group hover:-translate-y-2 ring-1 ring-white/20 dark:ring-slate-700/30 cursor-pointer"
+                  onClick={() => navigate(`/project/${project.id}`)}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">

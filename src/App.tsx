@@ -26,9 +26,13 @@ import { View } from "lucide-react";
 import PerformMatrix from "./pages/PerformMatrix";
 import DashboardPage from "./pages/DashboardPage";
 import Makeleader from "./pages/Makeleader";
+import TeamLeadAssignment from "./pages/TeamLeadAssignment";
 import FeedbackPage from "./pages/FeedbackPage";
+import TaskDetail from "./pages/TaskDetail";
+import ProjectDetail from "./pages/ProjectDetail";
 import { ConnectionStatusIndicator } from "./components/ConnectionStatusIndicator";
 import ErrorBoundary from "./components/ErrorBoundary";
+import BugReportPage from "./pages/BugReportPage";
 function App() {
   const { user, loading } = useAuthStore();
   const { theme } = useThemeStore();
@@ -73,8 +77,10 @@ function App() {
           <Route path="TeamManager" element={<TeamManager />} />
           <Route path="calendar" element={<Calendar />} />
           <Route path="projects" element={<Projects />} />
+          <Route path="project/:projectId" element={<ProjectDetail />} />
           <Route path="tasks" element={<Tasks />} />
           <Route path="Makeleader" element={<Makeleader />} />
+          <Route path="team-lead-assignment" element={<TeamLeadAssignment />} />
           <Route path="FeedbackPage" element={<FeedbackPage />} />
           <Route path="mytasks" element={<MyTasks />} />
           <Route path="ProjectDashboard" element={<ProjectDashboard />} />
@@ -86,6 +92,8 @@ function App() {
           <Route path="Reports" element={<Reports />} />
           <Route path="settings" element={<Settings />} />
           <Route path="KanbanPage" element={<Kanbanpage />} />
+          <Route path="task/:taskId" element={<TaskDetail />} />
+          <Route path="BugReportPage" element={<BugReportPage />}/>
         </Route>
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

@@ -1,8 +1,9 @@
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { initializeApp, type FirebaseApp } from "firebase/app";
+import { getAnalytics, type Analytics } from "firebase/analytics";
+import { getAuth, type Auth, createUserWithEmailAndPassword } from "firebase/auth";
 import {
   getFirestore,
+  type Firestore,
   collection,
   query,
   where,
@@ -27,10 +28,10 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-KR98Y1EEK3",
 };
 
-let app;
-let analytics;
-let auth;
-let db;
+let app: FirebaseApp | null;
+let analytics: Analytics | null;
+let auth: Auth | null;
+let db: Firestore | null;
 
 try {
   app = initializeApp(firebaseConfig);

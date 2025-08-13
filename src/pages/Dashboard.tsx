@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { collection, onSnapshot } from "firebase/firestore";
-import { db, isFirebaseConnected } from "../lib/firebase";
+import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
+import { db, auth, isFirebaseConnected } from "../lib/firebase";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import "../styles/animations.css";
 import {
   Star,
   Settings,
@@ -23,6 +24,9 @@ import {
   Zap,
   BarChart3,
   Layers,
+  X,
+  ListChecks,
+  Percent,
 } from "lucide-react";
 import {
   Chart as ChartJS,
@@ -36,7 +40,7 @@ import {
   PointElement,
   LineElement,
 } from 'chart.js';
-import { Bar, Doughnut, Line } from 'react-chartjs-2';
+import { Bar, Doughnut, Line, Pie } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -50,12 +54,54 @@ ChartJS.register(
   LineElement
 );
 
+// Function to get performance label based on percentage
+const getPerformanceLabel = (percent: number) => {
+  if (percent >= 90) {
+    return { label: 'Excellent', color: 'bg-emerald-600 dark:bg-emerald-500' };
+  } else if (percent >= 75) {
+    return { label: 'Good', color: 'bg-blue-600 dark:bg-blue-500' };
+  } else if (percent >= 50) {
+    return { label: 'Average', color: 'bg-amber-600 dark:bg-amber-500' };
+  } else if (percent >= 25) {
+    return { label: 'Below Average', color: 'bg-orange-600 dark:bg-orange-500' };
+  } else {
+    return { label: 'Poor', color: 'bg-red-600 dark:bg-red-500' };
+  }
+};
+
+// Function to get employee name by ID
+const getEmployeeName = (employeeId: string) => {
+  const employee = employees.find(e => e.id === employeeId);
+  return employee ? `${employee.firstName} ${employee.lastName}` : 'Unknown';
+};
+
+// Function to get team name by ID (will be moved inside component)
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<any[]>([]);
   const [tasks, setTasks] = useState<any[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
   const [employees, setEmployees] = useState<any[]>([]);
+
+  // Function to get team name by ID (moved inside component to access teams state)
+  const getTeamName = (teamId: string) => {
+    const team = teams.find(t => t.id === teamId);
+    return team ? team.name : 'No Team';
+  };
+  
+  // Function to get project name by ID
+  const getProjectName = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    return project ? project.name : 'Unknown Project';
+  };
+  
+  // Status title mapping
+  const statusTitles = {
+    "pending": "Pending",
+    "in_progress": "In Progress",
+    "completed": "Completed"
+  };
   const [filterDate, setFilterDate] = useState("");
   const [selectedProject, setSelectedProject] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -68,6 +114,66 @@ const Dashboard = () => {
 
   // Navigation button states
   const [projectOpen, setProjectOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [newComment, setNewComment] = useState("");
+  const [commentLoading, setCommentLoading] = useState(false);
+  const tableRef = React.useRef(null);
+  
+  // Function to check if a task is overdue
+  const isOverdue = (task: any) => {
+    if (task.status === "completed") return false;
+    const today = new Date();
+    const dueDate = typeof task.due_date === "string" 
+      ? new Date(task.due_date) 
+      : task.due_date?.toDate?.();
+    return dueDate && dueDate < today;
+  };
+  
+  // Function to handle task click
+  const handleTaskClick = (task: any) => {
+    navigate(`/task/${task.id}`);
+  };
+  
+  // Function to add a comment to a task
+  const handleAddComment = async () => {
+    if (!newComment.trim() || !selectedTask) return;
+    
+    setCommentLoading(true);
+    try {
+      // Get the current task document reference
+      const taskRef = doc(db, "tasks", selectedTask.id);
+      
+      // Create the new comment object
+      const commentObj = {
+        userId: auth.currentUser?.uid,
+        text: newComment.trim(),
+        timestamp: new Date().getTime()
+      };
+      
+      // Prepare the comments array (ensure it exists)
+      const comments = Array.isArray(selectedTask.comments) 
+        ? [...selectedTask.comments, commentObj] 
+        : [commentObj];
+      
+      // Update the task document with the new comments array
+      await updateDoc(taskRef, { comments });
+      
+      // Update the local state
+      setSelectedTask({
+        ...selectedTask,
+        comments
+      });
+      
+      // Clear the comment input
+      setNewComment("");
+      
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    } finally {
+      setCommentLoading(false);
+    }
+  };
 
   useEffect(() => {
     let retryTimer: NodeJS.Timeout;
@@ -218,8 +324,25 @@ const Dashboard = () => {
     }
   };
 
+  // State for card filter and project summary modal
+  const [cardFilter, setCardFilter] = useState<string | null>(null);
+  const [showProjectSummary, setShowProjectSummary] = useState(false);
+  
+  // Check for filter from Analytics page
+  useEffect(() => {
+    // Check if there's a filter set from Analytics page
+    const savedFilter = localStorage.getItem('dashboardFilter');
+    if (savedFilter) {
+      setCardFilter(savedFilter);
+      localStorage.removeItem('dashboardFilter'); // Clear it after use
+    }
+  }, []);
+
   // Filter tasks with enhanced search functionality
   const filteredTasks = tasks.filter((task) => {
+    // Apply card filter first
+    if (cardFilter && task.status !== cardFilter) return false;
+    
     if (selectedProject && task.projectId !== selectedProject) return false;
     if (filterDate && !task.dueDate?.includes(filterDate)) return false;
     
@@ -271,6 +394,60 @@ const Dashboard = () => {
 
   // Performance metrics
   const teamEfficiency = tasks.length > 0 ? Math.round((completedTasks.length / tasks.length) * 100) : 0;
+
+  // Chart data for pie chart
+  const chartData = {
+    labels: ["Completed", "In Progress", "Pending"],
+    datasets: [
+      {
+        data: [completedTasks.length, inProgressTasks.length, pendingTasks.length],
+        backgroundColor: [
+          "rgba(16, 185, 129, 0.8)",
+          "rgba(139, 92, 246, 0.8)",
+          "rgba(245, 158, 11, 0.8)",
+        ],
+        borderColor: [
+          "rgba(16, 185, 129, 1)",
+          "rgba(139, 92, 246, 1)",
+          "rgba(245, 158, 11, 1)",
+        ],
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  // Get performance label based on percentage
+  const getPerformanceLabel = (percent: number) => {
+    if (percent >= 80) {
+      return { label: "Excellent", color: "bg-green-500 dark:bg-green-600" };
+    } else if (percent >= 60) {
+      return { label: "Good", color: "bg-blue-500 dark:bg-blue-600" };
+    } else if (percent >= 40) {
+      return { label: "Average", color: "bg-yellow-500 dark:bg-yellow-600" };
+    } else {
+      return { label: "Needs Improvement", color: "bg-red-500 dark:bg-red-600" };
+    }
+  };
+
+  // Get employee name by ID
+  const getEmployeeName = (employeeId: string) => {
+    const employee = employees.find((emp) => emp.id === employeeId);
+    return employee ? employee.name : "Unknown";
+  };
+  
+  // Get project tasks by project ID
+  const getProjectTasks = (projectId: string) => {
+    return tasks.filter(task => task.project_id === projectId);
+  };
+
+  // Handle card click to filter tasks
+  const handleCardClick = (status: string) => {
+    setCardFilter(status === cardFilter ? null : status);
+    // Store the filter in localStorage for TaskDetail page to use
+    localStorage.setItem('taskStatusFilter', status);
+    // Navigate to TaskDetail page with the filter
+    navigate('/tasks');
+  };
 
   const getStatusBadgeStyle = (status: string) => {
     switch (status) {
@@ -453,9 +630,52 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Compact Stats Cards */}
-      <div className="relative z-10 px-6 py-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      {/* Scrollable Main Content */}
+      <div className="flex-1 overflow-y-auto px-4 py-6 custom-scrollbar">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-6"> 
+          {/* Show Total Projects only if not showing completed tasks */} 
+          
+          
+
+        </div> 
+        {showProjectSummary && ( 
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 p-2 sm:p-4"> 
+            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-full max-w-5xl mx-auto overflow-auto max-h-[90vh]"> 
+              {/* Header */} 
+              <div className="flex justify-between items-center border-b p-3 sm:p-4 sticky top-0 bg-white dark:bg-gray-900 z-10"> 
+                <h2 className="text-base sm:text-lg font-bold text-gray-800 dark:text-gray-200"> 
+                  Project Summary 
+                </h2> 
+                <button 
+                  onClick={() => setShowProjectSummary(false)} 
+                  className="text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 p-1" 
+                > 
+                  ✕ 
+                </button> 
+              </div> 
+
+              {/* Table */} 
+             
+            </div> 
+          </div> 
+        )}
+        
+        {/* Project Cards */}
+        
+        {/* Compact Stats Cards */}
+        <div className="relative z-10 px-2">
+        {cardFilter && (
+          <div className="flex justify-end mb-2">
+            <button 
+              onClick={() => setCardFilter(null)}
+              className="px-3 py-1 text-xs font-medium bg-white/70 dark:bg-slate-800/70 text-violet-600 dark:text-violet-300 hover:bg-violet-100/70 dark:hover:bg-violet-700/40 border border-violet-200/60 dark:border-violet-500/30 rounded-lg transition-all duration-200 shadow-sm backdrop-blur-sm flex items-center gap-1"
+            >
+              <X className="w-3 h-3" /> Clear filter
+            </button>
+          </div>
+        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           {[
             {
               title: "Projects",
@@ -472,13 +692,13 @@ const Dashboard = () => {
               icon: Clock,
               color: "amber",
               gradient: "from-amber-500 to-orange-600",
-              change: `${overdueTasks.length}`,
+              change: `${overdueTasks.length} overdue`,
               changeIcon: AlertCircle
             },
             {
-              title: "Active",
-              value: inProgressTasks.length,
-              icon: Activity,
+              title: "Total Tasks",
+              value: tasks.length,
+              icon: ListChecks,
               color: "blue",
               gradient: "from-blue-500 to-cyan-600",
               change: `${tasks.length > 0 ? Math.round((inProgressTasks.length / tasks.length) * 100) : 0}%`,
@@ -492,6 +712,15 @@ const Dashboard = () => {
               gradient: "from-emerald-500 to-green-600",
               change: `${teamEfficiency}%`,
               changeIcon: Target
+            },
+            {
+              title: "Overdue",
+              value: overdueTasks.length,
+              icon: AlertCircle,
+              color: "red",
+              gradient: "from-red-500 to-rose-600",
+              change: `${Math.round((overdueTasks.length / tasks.length) * 100)}% of total`,
+              changeIcon: Percent
             }
           ].map((stat, index) => (
             <motion.div
@@ -500,13 +729,34 @@ const Dashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 group"
+              className={`bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border-2 ${cardFilter === (stat.title === 'Pending' ? 'pending' : stat.title === 'Active' ? 'in-progress' : stat.title === 'Done' ? 'completed' : stat.title === 'Overdue' ? 'overdue' : null) ? `border-${stat.color}-500 dark:border-${stat.color}-400` : 'border-purple-500/50 dark:border-purple-500/30'} rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer`}
+              onClick={() => {
+                switch (stat.title) {
+                  case 'Projects':
+                    navigate('/projects');
+                    break;
+                  case 'Pending':
+                    handleCardClick('pending');
+                    break;
+                  case 'Active':
+                    handleCardClick('in-progress');
+                    break;
+                  case 'Done':
+                    handleCardClick('completed');
+                    break;
+                  case 'Overdue':
+                    handleCardClick('overdue');
+                    break;
+                  default:
+                    navigate('/Analytics');
+                }
+              }}
             >
               <div className="flex items-center justify-between mb-3">
                 <div className={`p-2 bg-gradient-to-br ${stat.gradient} rounded-xl shadow-md group-hover:shadow-lg transition-shadow`}>
                   <stat.icon className="w-4 h-4 text-white" />
                 </div>
-                <div className={`flex items-center gap-1 px-2 py-1 bg-${stat.color}-50/80 dark:bg-${stat.color}-500/10 rounded-lg border border-${stat.color}-200/60 dark:border-${stat.color}-500/30`}>
+                <div className={`flex items-center gap-1 px-2 py-1 bg-${stat.color}-50/80 dark:bg-${stat.color}-500/10 rounded-lg border-2 border-${stat.color}-500/50 dark:border-${stat.color}-500/30`}>
                   <stat.changeIcon className={`w-3 h-3 text-${stat.color}-600 dark:text-${stat.color}-400`} />
                   <span className={`text-xs font-bold text-${stat.color}-600 dark:text-${stat.color}-400`}>
                     {stat.change}
@@ -515,9 +765,14 @@ const Dashboard = () => {
               </div>
               
               <div>
-                <p className="text-xs font-medium text-violet-600/70 dark:text-violet-300/70 mb-1">
-                  {stat.title}
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-violet-600/70 dark:text-violet-300/70 mb-1">
+                    {stat.title}
+                  </p>
+                  {cardFilter === (stat.title === 'Pending' ? 'pending' : stat.title === 'Active' ? 'in-progress' : stat.title === 'Done' ? 'completed' : null) && (
+                    <span className={`text-xs font-bold text-${stat.color}-600 dark:text-${stat.color}-400`}>Filtered</span>
+                  )}
+                </div>
                 <p className="text-2xl font-black text-slate-800 dark:text-white">
                   {stat.value}
                 </p>
@@ -533,7 +788,7 @@ const Dashboard = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4 }}
-            className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-4 shadow-lg"
+            className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border-2 border-purple-500/50 dark:border-purple-500/30 rounded-2xl p-4 shadow-lg"
           >
             <div className="flex items-center gap-2 mb-4">
               <div className="p-1.5 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg">
@@ -589,7 +844,7 @@ const Dashboard = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
-            className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-4 shadow-lg"
+            className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border-2 border-purple-500/50 dark:border-purple-500/30 rounded-2xl p-4 shadow-lg"
           >
             <div className="flex items-center gap-2 mb-4">
               <div className="p-1.5 bg-gradient-to-br from-blue-500 to-violet-600 rounded-lg">
@@ -617,7 +872,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-violet-200/50 dark:border-violet-500/20">
+              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-purple-500/50 dark:border-purple-500/30">
                 <div className="text-center">
                   <p className="text-lg font-black text-slate-800 dark:text-white">{teams.length}</p>
                   <p className="text-xs text-violet-600/70 dark:text-violet-300/70">Teams</p>
@@ -635,7 +890,7 @@ const Dashboard = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.6 }}
-            className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-4 shadow-lg"
+            className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border-2 border-purple-500/50 dark:border-purple-500/30 rounded-2xl p-4 shadow-lg"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -644,7 +899,13 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-slate-800 dark:text-white">Activity</h3>
-                  <p className="text-xs text-violet-600/70 dark:text-violet-300/70">Recent</p>
+                  <p className="text-xs text-violet-600/70 dark:text-violet-300/70">
+                    {cardFilter ? 
+                      cardFilter === 'pending' ? 'Pending Tasks' : 
+                      cardFilter === 'in-progress' ? 'Active Tasks' : 
+                      cardFilter === 'completed' ? 'Completed Tasks' : 'Recent' 
+                    : 'Recent'}
+                  </p>
                 </div>
               </div>
               
@@ -661,7 +922,7 @@ const Dashboard = () => {
                 <div
                   key={task.id}
                   className="flex items-center gap-3 p-3 bg-gray-50/60 dark:bg-slate-700/40 hover:bg-violet-50/60 dark:hover:bg-violet-500/10 rounded-lg transition-colors group cursor-pointer"
-                  onClick={() => navigate(`/tasks/${task.id}`)}
+                  onClick={() => navigate(`/task/${task.id}`)}
                 >
                   <div className={`w-2 h-2 rounded-full ${
                     task.status === 'completed' ? 'bg-emerald-500' :
@@ -804,6 +1065,251 @@ const Dashboard = () => {
           </motion.div>
         </div>
       </div>
+      </div>
+      
+      {showModal && selectedTask && ( 
+        <div className="fixed inset-0 bg-black bg-opacity-40 dark:bg-opacity-60 flex items-center justify-center z-50 px-4 transition-opacity"> 
+          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl w-full max-w-6xl p-6 relative grid grid-cols-1 md:grid-cols-3 gap-6 max-h-[90vh] overflow-y-auto animate-fadeIn"> 
+            <button 
+              onClick={() => setSelectedTask(null)} 
+              className="absolute top-2 right-4 text-2xl text-gray-500 dark:text-gray-300 hover:text-red-500" 
+            > 
+              &times; 
+            </button> 
+
+            <div className="col-span-2 space-y-4"> 
+              <h2 className="text-2xl font-bold text-indigo-700 dark:text-indigo-400"> 
+                {selectedTask.title} 
+              </h2> 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 dark:text-gray-300"> 
+                <p> 
+                  <strong>📁 Project:</strong>{" "} 
+                  {getProjectName(selectedTask.project_id)} 
+                </p> 
+                <p> 
+                  <strong>Status:</strong> {statusTitles[selectedTask.status]} 
+                </p> 
+                <p> 
+                  <strong>Due Date:</strong> {selectedTask.due_date} 
+                </p> 
+                <p> 
+                  <strong>Progress:</strong>{" "} 
+                  {selectedTask.progress_status || "—"} 
+                </p> 
+                <p> 
+                  <strong>Review:</strong> {selectedTask.reviewpoints || "—"} 
+                  <div className="flex mt-1"> 
+                    {Array.from({ length: 5 }).map((_, index) => { 
+                      const isFilled = 
+                        selectedTask.reviewpoints >= (index + 1) * 20; 
+                      return ( 
+                        <svg 
+                          key={index} 
+                          className={`w-4 h-4 ${ 
+                            isFilled ? "text-yellow-400" : "text-gray-300" 
+                          }`} 
+                          fill="currentColor" 
+                          viewBox="0 0 20 20" 
+                        > 
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.948a1 1 0 00.95.69h4.15c.969 0 1.371 1.24.588 1.81l-3.36 2.443a1 1 0 00-.364 1.118l1.287 3.948c.3.921-.755 1.688-1.538 1.118l-3.36-2.443a1 1 0 00-1.175 0l-3.36 2.443c-.783.57-1.838-.197-1.538-1.118l1.287-3.948a1 1 0 00-.364-1.118L2.075 9.375c-.783-.57-.38-1.81.588-1.81h4.15a1 1 0 00.95-.69l1.286-3.948z" /> 
+                        </svg> 
+                      ); 
+                    })} 
+                  </div> 
+                </p> 
+                <p> 
+                  <strong>Assigned:</strong>{" "} 
+                  {getEmployeeName(selectedTask.assigned_to)} 
+                </p> 
+                <p> 
+                  <strong>Created By:</strong>{" "} 
+                  {getEmployeeName(selectedTask.created_by)} 
+                </p> 
+                <p> 
+                  <strong>Created At:</strong>{" "} 
+                  {new Date( 
+                    selectedTask.created_at?.seconds * 1000 
+                  ).toLocaleString()} 
+                </p> 
+                {selectedTask.progress_updated_at && ( 
+                  <p> 
+                    <strong>Progress Updated:</strong>{" "} 
+                    {new Date( 
+                      selectedTask.progress_updated_at.seconds * 1000 
+                    ).toLocaleString()} 
+                  </p> 
+                )} 
+              </div> 
+
+              <div> 
+                <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-1"> 
+                  Description 
+                </h3> 
+                <div className="bg-gray-50 dark:bg-zinc-800 p-3 rounded border text-sm whitespace-pre-wrap"> 
+                  {selectedTask.description || "—"} 
+                </div> 
+              </div> 
+
+              <div> 
+                <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-1"> 
+                  Progress Notes 
+                </h3> 
+                <div className="bg-gray-50 dark:bg-zinc-800 p-3 rounded border text-sm whitespace-pre-wrap"> 
+                  {selectedTask.progress_description || "—"} 
+                </div> 
+                {selectedTask.progress_link && ( 
+                  <a 
+                    href={selectedTask.progress_link} 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    className="text-blue-600 dark:text-blue-300 underline text-sm mt-2 inline-block" 
+                  > 
+                    🔗 View Progress Link 
+                  </a> 
+                )} 
+              </div> 
+            </div> 
+            
+            <div className="col-span-1 space-y-4">
+              <div className="bg-indigo-50 dark:bg-indigo-900/30 p-4 rounded-lg border border-indigo-100 dark:border-indigo-700/30">
+                <h3 className="font-medium text-indigo-800 dark:text-indigo-300 mb-2">Task Details</h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Priority:</span>
+                    <span className="font-medium text-gray-800 dark:text-gray-200">
+                      {selectedTask.priority || "Medium"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600 dark:text-gray-400">Task ID:</span>
+                    <span className="font-medium text-gray-800 dark:text-gray-200">
+                      {selectedTask.task_id}
+                    </span>
+                  </div>
+                  {selectedTask.tags && (
+                    <div className="mt-3">
+                      <span className="text-gray-600 dark:text-gray-400 text-sm">Tags:</span>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {selectedTask.tags.split(',').map((tag, index) => (
+                          <span 
+                            key={index}
+                            className="px-2 py-1 bg-indigo-100 dark:bg-indigo-800/40 text-indigo-700 dark:text-indigo-300 rounded text-xs"
+                          >
+                            {tag.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 dark:bg-zinc-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700/30">
+                <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2">Timeline</h3>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2">
+                    <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5"></div>
+                    <div>
+                      <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Created</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(selectedTask.created_at?.seconds * 1000).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {selectedTask.progress_updated_at && (
+                    <div className="flex items-start gap-2">
+                      <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5"></div>
+                      <div>
+                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Progress Updated</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {new Date(selectedTask.progress_updated_at.seconds * 1000).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-start gap-2">
+                    <div className="w-2 h-2 rounded-full bg-amber-500 mt-1.5"></div>
+                    <div>
+                      <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Due Date</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {selectedTask.due_date}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Comments */} 
+              <div className="col-span-1 flex flex-col h-full"> 
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2"> 
+                  💬 Comments 
+                </h3> 
+                <div className="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[300px]"> 
+                  {Array.isArray(selectedTask.comments) && 
+                  selectedTask.comments.length > 0 ? ( 
+                    selectedTask.comments.map((comment, index) => ( 
+                      <div 
+                        key={index} 
+                        className="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 shadow-sm rounded-lg p-3 text-sm transition" 
+                      > 
+                        <div className="flex items-center gap-2 mb-1"> 
+                          <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-800 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xs"> 
+                            {getEmployeeName(comment.userId)?.[0] || "U"} 
+                          </div> 
+                          <div className="text-sm font-medium text-gray-800 dark:text-gray-100"> 
+                            {getEmployeeName(comment.userId)} 
+                          </div> 
+                        </div> 
+                        <div className="text-gray-700 dark:text-gray-200"> 
+                          {comment.text} 
+                        </div> 
+                        <div className="text-xs text-right text-gray-500 dark:text-gray-400 mt-2"> 
+                          {new Date(comment.timestamp).toLocaleString()} 
+                        </div> 
+                      </div> 
+                    )) 
+                  ) : ( 
+                    <p className="text-sm text-gray-400 dark:text-gray-500 italic"> 
+                      No comments yet. 
+                    </p> 
+                  )} 
+                </div> 
+  
+                <div className="mt-4"> 
+                  <textarea 
+                    rows={3} 
+                    className="w-full p-2 border rounded-md text-sm bg-white dark:bg-zinc-800 dark:border-zinc-600 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring focus:ring-indigo-300" 
+                    placeholder="Write a comment..." 
+                    value={newComment} 
+                    onChange={(e) => setNewComment(e.target.value)} 
+                  /> 
+                  <button 
+                    onClick={handleAddComment} 
+                    disabled={commentLoading || !newComment.trim()} 
+                    className="mt-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded w-full disabled:opacity-50 transition" 
+                  > 
+                    {commentLoading ? "Saving..." : "Post Comment"} 
+                  </button> 
+                </div> 
+              </div>
+              
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => {
+                    setSelectedTask(null);
+                    setNewComment("");
+                  }}
+                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg text-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div> 
+        </div> 
+      )}
     </div>
   );
 };

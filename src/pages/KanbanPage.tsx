@@ -48,7 +48,8 @@ const KanbanPage = () => {
   const [viewMode, setViewMode] = useState("board"); // board, list, timeline, table
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
   const [showTaskDetailModal, setShowTaskDetailModal] = useState(false);
-  const [taskDetailView, setTaskDetailView] = useState("style1"); // style1, style2, style3
+  const [commentLoading, setCommentLoading] = useState(false);
+  const [newComment, setNewComment] = useState("");
   const [selectedTask, setSelectedTask] = useState(null);
   const [newTaskColumn, setNewTaskColumn] = useState("");
   const [draggedTask, setDraggedTask] = useState<any>(null);
@@ -1577,7 +1578,7 @@ const KanbanPage = () => {
                       onChange={(e) => setNewTaskForm(prev => ({ ...prev, project_id: e.target.value }))}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                     >
-                      <option value="">��� Select project...</option>
+                      <option value="">📁 Select project...</option>
                       {projects.map((project: any) => (
                         <option key={project.id} value={project.id}>
                           {project.name}

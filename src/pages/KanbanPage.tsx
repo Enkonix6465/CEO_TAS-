@@ -1632,7 +1632,7 @@ const KanbanPage = () => {
         )}
       </AnimatePresence>
 
-      {/* Task Detail Modal - Style 1 (First Image Layout) */}
+      {/* Task Detail Modal - Multiple Styles */}
       <AnimatePresence>
         {showTaskDetailModal && selectedTask && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

@@ -401,9 +401,22 @@ const Dashboard = () => {
   const inProgressTasks = filteredTasks.filter((task) => task.status === "in-progress");
   const completedTasks = filteredTasks.filter((task) => task.status === "completed");
   const overdueTasks = filteredTasks.filter((task) => {
-    if (!task.dueDate) return false;
-    const due = new Date(task.dueDate);
+    // Handle different date field names and formats
+    const dueDate = task.dueDate || task.due_date;
+    if (!dueDate) return false;
+
+    let due;
+    if (typeof dueDate === 'string') {
+      due = new Date(dueDate);
+    } else if (dueDate.seconds) {
+      // Firestore timestamp
+      due = new Date(dueDate.seconds * 1000);
+    } else {
+      due = new Date(dueDate);
+    }
+
     const now = new Date();
+    now.setHours(23, 59, 59, 999); // End of today
     return due < now && task.status !== "completed";
   });
 

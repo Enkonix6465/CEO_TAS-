@@ -593,7 +593,7 @@ const KanbanPage = () => {
           setSelectedTask(task);
           setShowTaskDetailModal(true);
         }}
-        className={`${getCardBgColor()} rounded-2xl border p-5 mb-4 transition-all duration-500 cursor-pointer group relative overflow-hidden backdrop-blur-xl hover:-translate-y-2 hover:scale-[1.02] moving-border-subtle`}
+        className={`${getCardBgColor()} rounded-lg p-4 mb-3 transition-all duration-200 cursor-pointer group relative overflow-hidden hover:shadow-md hover:-translate-y-1`}
       >
         {/* Ticket ID Badge */}
         <div className="absolute top-2 right-2 px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-md border border-purple-200 dark:border-purple-700/50">
@@ -1577,7 +1577,7 @@ const KanbanPage = () => {
                       onChange={(e) => setNewTaskForm(prev => ({ ...prev, project_id: e.target.value }))}
                       className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                     >
-                      <option value="">📁 Select project...</option>
+                      <option value="">��� Select project...</option>
                       {projects.map((project: any) => (
                         <option key={project.id} value={project.id}>
                           {project.name}

@@ -1365,7 +1365,10 @@ const Dashboard = () => {
                         >
                           {project.name}
                         </td>
-                        <td className="p-4 font-medium border border-gray-300 dark:border-gray-600">
+                        <td
+                          className="p-4 font-medium border border-gray-300 dark:border-gray-600 cursor-pointer text-blue-600 hover:underline"
+                          onClick={() => navigate(`/PerformMatrix?empId=${project.created_by || project.teamLeader}`)}
+                        >
                           {getEmployeeName(project.created_by || project.teamLeader)}
                         </td>
 
@@ -1426,8 +1429,8 @@ const Dashboard = () => {
 
               {/* Detailed Project Modal */}
               {detailedProject && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-6 overflow-auto">
-                  <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-8 relative">
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-6 overflow-auto">
+                  <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto p-8 relative border border-violet-200/50 dark:border-violet-500/30">
                     <button
                       onClick={() => setDetailedProject(null)}
                       className="absolute top-4 right-6 text-gray-600 dark:text-gray-300 hover:text-red-500 text-3xl font-bold"
@@ -1436,50 +1439,127 @@ const Dashboard = () => {
                       &times;
                     </button>
 
-                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
-                      {detailedProject.name}
-                    </h2>
-                    <div className="space-y-3 text-lg text-gray-800 dark:text-gray-200">
-                      <p>
-                        <strong>Description:</strong>{" "}
-                        {detailedProject.description}
-                      </p>
-                      <p>
-                        <strong>Start Date:</strong>{" "}
-                        {detailedProject.startDate}
-                      </p>
-                      <p>
-                        <strong>Deadline:</strong> {detailedProject.deadline}
-                      </p>
-                      <p>
-                        <strong>Created By:</strong>{" "}
-                        {getEmployeeName(detailedProject.created_by)}
-                      </p>
-                      <p>
-                        <strong>Team:</strong>{" "}
-                        {getTeamName(detailedProject.teamId)}
-                      </p>
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m5 0v-4a1 1 0 011-1h2a1 1 0 011 1v4M7 7h10M7 11h6" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h2 className="text-3xl font-bold text-slate-800 dark:text-white bg-gradient-to-r from-violet-600 to-purple-600 dark:from-violet-400 dark:to-purple-400 bg-clip-text text-transparent">
+                          {detailedProject.name}
+                        </h2>
+                        <p className="text-violet-600/70 dark:text-violet-300/70 text-sm mt-1">
+                          Project Details & Team Overview
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="mt-6">
-                      <h3 className="font-semibold text-xl mb-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                      <div className="bg-violet-50/50 dark:bg-violet-900/20 rounded-2xl p-6 border border-violet-200/50 dark:border-violet-500/30">
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                          <svg className="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          Project Information
+                        </h3>
+                        <div className="space-y-3 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-slate-600 dark:text-slate-400">Description:</span>
+                            <span className="text-slate-800 dark:text-white font-medium">{detailedProject.description || 'No description'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-600 dark:text-slate-400">Start Date:</span>
+                            <span className="text-slate-800 dark:text-white font-medium">{detailedProject.startDate || 'Not set'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-600 dark:text-slate-400">Deadline:</span>
+                            <span className="text-slate-800 dark:text-white font-medium">{detailedProject.deadline || 'Not set'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-600 dark:text-slate-400">Created By:</span>
+                            <span
+                              className="text-blue-600 dark:text-blue-400 font-medium cursor-pointer hover:underline"
+                              onClick={() => navigate(`/PerformMatrix?empId=${detailedProject.created_by}`)}
+                            >
+                              {getEmployeeName(detailedProject.created_by)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-600 dark:text-slate-400">Team:</span>
+                            <span className="text-slate-800 dark:text-white font-medium">{getTeamName(detailedProject.teamId)}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-blue-50/50 dark:bg-blue-900/20 rounded-2xl p-6 border border-blue-200/50 dark:border-blue-500/30">
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                          Task Statistics
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{tasks.filter(t => t.project_id === detailedProject.id || t.projectId === detailedProject.id).length}</div>
+                            <div className="text-xs text-slate-600 dark:text-slate-400">Total Tasks</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{tasks.filter(t => (t.project_id === detailedProject.id || t.projectId === detailedProject.id) && t.status === 'completed').length}</div>
+                            <div className="text-xs text-slate-600 dark:text-slate-400">Completed</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{tasks.filter(t => (t.project_id === detailedProject.id || t.projectId === detailedProject.id) && t.status === 'pending').length}</div>
+                            <div className="text-xs text-slate-600 dark:text-slate-400">Pending</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{tasks.filter(t => (t.project_id === detailedProject.id || t.projectId === detailedProject.id) && t.status === 'in_progress').length}</div>
+                            <div className="text-xs text-slate-600 dark:text-slate-400">In Progress</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-emerald-50/50 dark:bg-emerald-900/20 rounded-2xl p-6 border border-emerald-200/50 dark:border-emerald-500/30">
+                      <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
                         Team Members
                       </h3>
-                      <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-1">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {teams
                           .find((t) => t.id === detailedProject.teamId)
                           ?.members?.map((memberId: string) => (
-                            <li
+                            <div
                               key={memberId}
-                              className="cursor-pointer text-blue-600 hover:underline font-medium"
-                              onClick={() =>
-                                navigate(`/PerformMatrix?empId=${memberId}`)
-                              }
+                              className="flex items-center gap-3 p-3 bg-white/60 dark:bg-slate-800/60 rounded-xl cursor-pointer hover:bg-emerald-100/50 dark:hover:bg-emerald-800/30 transition-colors group border border-emerald-200/30 dark:border-emerald-500/20"
+                              onClick={() => navigate(`/PerformMatrix?empId=${memberId}`)}
                             >
-                              {getEmployeeName(memberId)}
-                            </li>
-                          )) || <li>No team members found.</li>}
-                      </ul>
+                              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center text-white font-bold text-sm">
+                                {getEmployeeName(memberId).charAt(0).toUpperCase()}
+                              </div>
+                              <div className="flex-1">
+                                <div className="font-medium text-slate-800 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                  {getEmployeeName(memberId)}
+                                </div>
+                                <div className="text-xs text-slate-500 dark:text-slate-400">
+                                  Click to view performance
+                                </div>
+                              </div>
+                              <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </div>
+                          )) || (
+                            <div className="col-span-2 text-center py-8 text-slate-500 dark:text-slate-400">
+                              <svg className="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                              </svg>
+                              No team members found
+                            </div>
+                          )}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -340,9 +340,8 @@ const Dashboard = () => {
     }
   };
 
-  // State for card filter and project summary modal
+  // State for card filter
   const [cardFilter, setCardFilter] = useState<string | null>(null);
-  const [showProjectSummary, setShowProjectSummary] = useState(false);
   
   // Check for filter from Analytics page
   useEffect(() => {

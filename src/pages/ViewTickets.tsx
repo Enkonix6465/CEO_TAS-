@@ -14,6 +14,7 @@ const ViewTickets = () => {
   const [tickets, setTickets] = useState<any[]>([]);
   const [projectsMap, setProjectsMap] = useState<any>({});
   const [teamLeadMap, setTeamLeadMap] = useState<any>({});
+  const [usersMap, setUsersMap] = useState<any>({});
   const [statusFilter, setStatusFilter] = useState("");
   const [projectFilter, setProjectFilter] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");
@@ -54,19 +55,40 @@ const ViewTickets = () => {
           })
         );
 
-        // Fetch team lead data
+        // Fetch team lead data from both users and employees collections
         const leadMap: any = {};
+        const allUserIds = new Set([...teamLeadIds, ...fetchedTickets.map(t => t.createdById || t.created_by || t.createdByName).filter(Boolean)]);
+
+        // First try users collection
         await Promise.all(
-          Array.from(teamLeadIds).map(async (id) => {
-            const leadRef = doc(db, "employees", id);
-            const leadSnap = await getDoc(leadRef);
-            const data = leadSnap.data();
-            leadMap[id] = leadSnap.exists() ? data?.name || id : "Unknown";
+          Array.from(allUserIds).map(async (id) => {
+            try {
+              const userRef = doc(db, "users", id);
+              const userSnap = await getDoc(userRef);
+              if (userSnap.exists()) {
+                const userData = userSnap.data();
+                leadMap[id] = userData?.fullName || userData?.name || userData?.displayName || userData?.email || id;
+              } else {
+                // Try employees collection as fallback
+                const empRef = doc(db, "employees", id);
+                const empSnap = await getDoc(empRef);
+                if (empSnap.exists()) {
+                  const empData = empSnap.data();
+                  leadMap[id] = empData?.fullName || empData?.name || empData?.displayName || empData?.email || id;
+                } else {
+                  leadMap[id] = id === 'admin' ? 'Admin' : 'Unknown User';
+                }
+              }
+            } catch (error) {
+              console.error(`Error fetching user data for ${id}:`, error);
+              leadMap[id] = id === 'admin' ? 'Admin' : 'Unknown User';
+            }
           })
         );
 
         setProjectsMap(projectMap);
         setTeamLeadMap(leadMap);
+        setUsersMap(leadMap); // Use the same map for all user lookups
         setTickets(fetchedTickets);
         setLoading(false);
       } catch (error) {
@@ -332,11 +354,11 @@ const ViewTickets = () => {
                   </div>
                   <div>
                     <span className="font-medium">Created By:</span>
-                    <span className="ml-1">{ticket.createdByName}</span>
+                    <span className="ml-1">{usersMap[ticket.createdById || ticket.created_by] || ticket.createdByName || 'Unknown User'}</span>
                   </div>
                   <div>
                     <span className="font-medium">Team Lead:</span>
-                    <span className="ml-1">{teamLeadMap[ticket.teamLeadId] || ticket.teamLeadId}</span>
+                    <span className="ml-1">{teamLeadMap[ticket.teamLeadId] || usersMap[ticket.teamLeadId] || 'Unknown User'}</span>
                   </div>
                 </div>
 
@@ -425,7 +447,7 @@ const ViewTickets = () => {
                         {projectsMap[ticket.projectId] || ticket.projectId}
                       </span>
                     </td>
-                    <td className="p-3 text-slate-600 dark:text-slate-400">{ticket.createdByName}</td>
+                    <td className="p-3 text-slate-600 dark:text-slate-400">{usersMap[ticket.createdById || ticket.created_by] || ticket.createdByName || 'Unknown User'}</td>
                     <td className="p-3 text-slate-600 dark:text-slate-400">
                       {ticket.createdAt?.seconds
                         ? format(
@@ -435,7 +457,7 @@ const ViewTickets = () => {
                         : "N/A"}
                     </td>
                     <td className="p-3 text-slate-600 dark:text-slate-400">
-                      {teamLeadMap[ticket.teamLeadId] || ticket.teamLeadId}
+                      {teamLeadMap[ticket.teamLeadId] || usersMap[ticket.teamLeadId] || 'Unknown User'}
                     </td>
                     <td className="p-3">
                       <select

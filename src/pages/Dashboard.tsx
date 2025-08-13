@@ -83,6 +83,8 @@ const Dashboard = () => {
   const [tasks, setTasks] = useState<any[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
   const [employees, setEmployees] = useState<any[]>([]);
+  const [showProjectSummary, setShowProjectSummary] = useState(false);
+  const [detailedProject, setDetailedProject] = useState<any>(null);
 
   // Function to get team name by ID (moved inside component to access teams state)
   const getTeamName = (teamId: string) => {

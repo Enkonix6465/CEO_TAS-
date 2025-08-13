@@ -979,8 +979,8 @@ const KanbanPage = () => {
         </div>
       </div>
 
-      {/* Enhanced Kanban Board */}
-      <div className="flex-1 min-h-0 p-6 overflow-hidden">
+      {/* Kanban Board */}
+      <div className="flex-1 min-h-0 p-6 overflow-hidden bg-gray-50 dark:bg-slate-900">
         {viewMode === "board" && (
           <div className="flex gap-6 h-full min-w-max overflow-x-auto w-full pb-4">
           {columns.map((column) => (

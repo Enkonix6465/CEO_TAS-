@@ -430,8 +430,8 @@ const KanbanPage = () => {
       title: "To Do",
       icon: Circle,
       color: "amber",
-      glassEffect: "bg-white dark:from-amber-900/20 dark:to-orange-900/20",
-      borderColor: "border-gray-200 dark:border-amber-500/30",
+      glassEffect: "bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl",
+      borderColor: "border-violet-200/50 dark:border-amber-500/30",
       iconColor: "text-amber-600 dark:text-amber-400",
       count: filteredTasks.filter((t: any) => t.status === "pending").length
     },
@@ -440,8 +440,8 @@ const KanbanPage = () => {
       title: "In Progress",
       icon: Clock,
       color: "blue",
-      glassEffect: "bg-white dark:from-blue-900/20 dark:to-cyan-900/20",
-      borderColor: "border-gray-200 dark:border-blue-500/30",
+      glassEffect: "bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl",
+      borderColor: "border-violet-200/50 dark:border-blue-500/30",
       iconColor: "text-blue-600 dark:text-blue-400",
       count: filteredTasks.filter((t: any) => t.status === "in_progress").length
     },
@@ -450,8 +450,8 @@ const KanbanPage = () => {
       title: "Review",
       icon: Eye,
       color: "purple",
-      glassEffect: "bg-white dark:from-purple-900/20 dark:to-indigo-900/20",
-      borderColor: "border-gray-200 dark:border-purple-500/30",
+      glassEffect: "bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl",
+      borderColor: "border-violet-200/50 dark:border-purple-500/30",
       iconColor: "text-purple-600 dark:text-purple-400",
       count: filteredTasks.filter((t: any) => t.status === "review").length
     },
@@ -460,8 +460,8 @@ const KanbanPage = () => {
       title: "Done",
       icon: CheckCircle,
       color: "emerald",
-      glassEffect: "bg-white dark:from-emerald-900/20 dark:to-green-900/20",
-      borderColor: "border-gray-200 dark:border-emerald-500/30",
+      glassEffect: "bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl",
+      borderColor: "border-violet-200/50 dark:border-emerald-500/30",
       iconColor: "text-emerald-600 dark:text-emerald-400",
       count: filteredTasks.filter((t: any) => t.status === "completed").length
     }
@@ -1048,7 +1048,7 @@ const KanbanPage = () => {
                   <div className="flex items-center gap-3">
                     <motion.div
                       whileHover={{ scale: 1.15, rotate: 10 }}
-                      className={`w-12 h-12 rounded-2xl bg-white/90 dark:bg-purple-800/80 backdrop-blur-xl flex items-center justify-center ${column.iconColor} shadow-xl border border-white/50 dark:border-purple-500/50`}
+                      className={`w-12 h-12 rounded-2xl bg-white/90 dark:bg-slate-700/80 backdrop-blur-xl flex items-center justify-center ${column.iconColor} shadow-xl border border-white/50 dark:border-slate-500/50`}
                     >
                       <column.icon className="w-5 h-5" />
                     </motion.div>
@@ -1074,7 +1074,7 @@ const KanbanPage = () => {
                       setNewTaskColumn(column.id);
                       setShowNewTaskModal(true);
                     }}
-                    className="w-9 h-9 bg-white/90 dark:bg-purple-800/80 backdrop-blur-xl rounded-xl flex items-center justify-center text-gray-600 dark:text-purple-400 hover:text-gray-900 dark:hover:text-purple-200 hover:bg-white dark:hover:bg-purple-700 transition-all shadow-xl border border-white/50 dark:border-purple-500/50"
+                    className="w-9 h-9 bg-white/90 dark:bg-slate-700/80 backdrop-blur-xl rounded-xl flex items-center justify-center text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-white dark:hover:bg-slate-600 transition-all shadow-xl border border-white/50 dark:border-slate-500/50"
                     title={`Add task to ${column.title}`}
                   >
                     <Plus className="w-4 h-4" />
@@ -1082,12 +1082,12 @@ const KanbanPage = () => {
                 </div>
 
                 {/* Enhanced Progress indicator */}
-                <div className="relative w-full bg-white/30 rounded-full h-2 overflow-hidden">
+                <div className="relative w-full bg-white/30 dark:bg-slate-700/30 rounded-full h-2 overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.min((column.count / Math.max(filteredTasks.length, 1)) * 100, 100)}%` }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
-                    className="bg-gradient-to-r from-gray-700 to-gray-800 h-2 rounded-full shadow-sm"
+                    className="bg-gradient-to-r from-violet-600 to-purple-600 dark:from-violet-500 dark:to-purple-500 h-2 rounded-full shadow-sm"
                   />
                 </div>
               </motion.div>

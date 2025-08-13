@@ -297,21 +297,21 @@ function Tasks() {
     }
   };
 
-  // Function to get task row background color based on status and overdue state
+  // Function to get task row border color based on status and overdue state
   const getTaskRowColor = (task: any) => {
     if (isTaskOverdue(task)) {
-      return 'bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500';
+      return 'bg-white/60 dark:bg-slate-800/60 border-l-4 border-red-500';
     }
 
     switch (task.status) {
       case 'completed':
-        return 'bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500';
+        return 'bg-white/60 dark:bg-slate-800/60 border-l-4 border-green-500';
       case 'in_progress':
-        return 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500';
+        return 'bg-white/60 dark:bg-slate-800/60 border-l-4 border-blue-500';
       case 'pending':
-        return 'bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500';
+        return 'bg-white/60 dark:bg-slate-800/60 border-l-4 border-yellow-500';
       default:
-        return 'bg-white dark:bg-gray-800 border-l-4 border-gray-300';
+        return 'bg-white/60 dark:bg-slate-800/60 border-l-4 border-gray-300';
     }
   };
 

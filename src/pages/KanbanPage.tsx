@@ -392,8 +392,8 @@ const KanbanPage = () => {
       title: "To Do",
       icon: Circle,
       color: "amber",
-      glassEffect: "bg-gradient-to-br from-amber-50/80 to-orange-50/80 dark:from-amber-900/20 dark:to-orange-900/20",
-      borderColor: "border-amber-200/50 dark:border-amber-500/30",
+      glassEffect: "bg-white dark:from-amber-900/20 dark:to-orange-900/20",
+      borderColor: "border-gray-200 dark:border-amber-500/30",
       iconColor: "text-amber-600 dark:text-amber-400",
       count: filteredTasks.filter((t: any) => t.status === "pending").length
     },
@@ -402,8 +402,8 @@ const KanbanPage = () => {
       title: "In Progress",
       icon: Clock,
       color: "blue",
-      glassEffect: "bg-gradient-to-br from-blue-50/80 to-cyan-50/80 dark:from-blue-900/20 dark:to-cyan-900/20",
-      borderColor: "border-blue-200/50 dark:border-blue-500/30",
+      glassEffect: "bg-white dark:from-blue-900/20 dark:to-cyan-900/20",
+      borderColor: "border-gray-200 dark:border-blue-500/30",
       iconColor: "text-blue-600 dark:text-blue-400",
       count: filteredTasks.filter((t: any) => t.status === "in_progress").length
     },
@@ -412,8 +412,8 @@ const KanbanPage = () => {
       title: "Review",
       icon: Eye,
       color: "purple",
-      glassEffect: "bg-gradient-to-br from-purple-50/80 to-indigo-50/80 dark:from-purple-900/20 dark:to-indigo-900/20",
-      borderColor: "border-purple-200/50 dark:border-purple-500/30",
+      glassEffect: "bg-white dark:from-purple-900/20 dark:to-indigo-900/20",
+      borderColor: "border-gray-200 dark:border-purple-500/30",
       iconColor: "text-purple-600 dark:text-purple-400",
       count: filteredTasks.filter((t: any) => t.status === "review").length
     },
@@ -422,8 +422,8 @@ const KanbanPage = () => {
       title: "Done",
       icon: CheckCircle,
       color: "emerald",
-      glassEffect: "bg-gradient-to-br from-emerald-50/80 to-green-50/80 dark:from-emerald-900/20 dark:to-green-900/20",
-      borderColor: "border-emerald-200/50 dark:border-emerald-500/30",
+      glassEffect: "bg-white dark:from-emerald-900/20 dark:to-green-900/20",
+      borderColor: "border-gray-200 dark:border-emerald-500/30",
       iconColor: "text-emerald-600 dark:text-emerald-400",
       count: filteredTasks.filter((t: any) => t.status === "completed").length
     }

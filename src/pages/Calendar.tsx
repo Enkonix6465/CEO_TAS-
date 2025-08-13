@@ -3,6 +3,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday, addMonths, subMonths, startOfWeek, endOfWeek, addDays, startOfDay } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   ChevronLeft,
   ChevronRight,
@@ -31,6 +32,7 @@ import {
 import toast from "react-hot-toast";
 
 const Calendar = () => {
+  const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
@@ -502,7 +504,7 @@ const Calendar = () => {
               />
             </div>
 
-            <div className="relative">
+            <div className="relative z-50">
               <button
                 onClick={() => setFilterOpen(!filterOpen)}
                 className="flex items-center gap-1 px-2 py-1.5 text-sm border border-gray-200 dark:border-purple-500/30 rounded-lg bg-white dark:bg-black/90 text-gray-700 dark:text-purple-300 hover:bg-gray-50 dark:hover:bg-black/80 transition-colors"
@@ -517,7 +519,7 @@ const Calendar = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-black/95 border border-gray-200 dark:border-purple-500/30 rounded-lg shadow-xl z-[99999] p-4"
+                  className="fixed right-4 top-20 w-80 bg-white dark:bg-black/95 border border-gray-200 dark:border-purple-500/30 rounded-lg shadow-xl z-[9999] p-4"
                 >
                   <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Filter Events</h3>
 
@@ -917,6 +919,10 @@ const Calendar = () => {
                                 borderLeftColor: getEventColor(event)
                               }}
                               title={`${event.title} - ${event.status}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/task/${event.id}`);
+                              }}
                             >
                               <div className="font-medium truncate">{event.title}</div>
                               {event.assigned_to && viewMode === "week" && (

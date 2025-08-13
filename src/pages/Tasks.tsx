@@ -508,9 +508,10 @@ function Tasks() {
                         className="p-1.5 hover:bg-violet-100 dark:hover:bg-violet-500/20 rounded-lg transition-colors"
                       >
                         <StatusIcon className={`w-5 h-5 ${
-                          task.status === 'completed' ? 'text-emerald-500' :
-                          task.status === 'in-progress' ? 'text-blue-500' :
-                          'text-gray-400'
+                          task.status === 'completed' ? 'text-green-600' :
+                          task.status === 'in_progress' ? 'text-blue-600' :
+                          isTaskOverdue(task) ? 'text-red-600' :
+                          'text-yellow-600'
                         }`} />
                       </button>
                       

@@ -748,8 +748,8 @@ const Dashboard = () => {
                   case 'Pending':
                     handleCardClick('pending');
                     break;
-                  case 'Active':
-                    handleCardClick('in-progress');
+                  case 'Total Tasks':
+                    handleCardClick('all');
                     break;
                   case 'Done':
                     handleCardClick('completed');

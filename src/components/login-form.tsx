@@ -7,7 +7,6 @@ import { Label } from "./ui/label";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { Moon, Sun } from "lucide-react";
 import { useThemeStore } from "../store/themeStore";
 

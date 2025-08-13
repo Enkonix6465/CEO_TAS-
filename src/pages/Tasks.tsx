@@ -498,7 +498,7 @@ function Tasks() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className={`bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border-2 ${isTaskOverdue(task) ? 'border-red-500/50 dark:border-red-500/50' : 'border-purple-500/50 dark:border-purple-500/50'} rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 group h-full flex flex-col cursor-pointer`}
+                  className={`${getTaskRowColor(task)} backdrop-blur-xl border rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 group h-full flex flex-col cursor-pointer`}
                   onClick={() => navigate(`/task/${task.id}`)}
                 >
                   <div className="flex items-start justify-between mb-3">

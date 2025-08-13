@@ -62,7 +62,7 @@ const TaskDetail = () => {
           }
         );
 
-        // Setup listeners for users instead of employees
+        // Setup listeners for both users and employees collections
         const usersUnsubscribe = onSnapshot(
           collection(db, "users"),
           (snapshot) => {
@@ -70,10 +70,33 @@ const TaskDetail = () => {
               id: doc.id,
               ...doc.data(),
             }));
-            setEmployees(usersData);
+            setEmployees(prev => {
+              // Merge users data with existing employees
+              const existingEmployees = prev.filter(emp => !usersData.find(user => user.id === emp.id || user.uid === emp.id));
+              return [...usersData, ...existingEmployees];
+            });
           },
           (error) => {
             console.error("Error fetching users:", error);
+          }
+        );
+
+        // Also fetch from employees collection for legacy data
+        const employeesUnsubscribe = onSnapshot(
+          collection(db, "employees"),
+          (snapshot) => {
+            const employeesData = snapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+            setEmployees(prev => {
+              // Merge employees data with existing users
+              const existingUsers = prev.filter(user => !employeesData.find(emp => emp.id === user.id || emp.id === user.uid));
+              return [...existingUsers, ...employeesData];
+            });
+          },
+          (error) => {
+            console.error("Error fetching employees:", error);
           }
         );
 
@@ -81,6 +104,7 @@ const TaskDetail = () => {
           taskUnsubscribe();
           projectsUnsubscribe();
           usersUnsubscribe();
+          employeesUnsubscribe();
         };
       } catch (err) {
         console.error("Error setting up listeners:", err);
@@ -103,15 +127,21 @@ const TaskDetail = () => {
   // Function to get employee name by ID
   const getEmployeeName = (employeeId) => {
     if (!employeeId) return 'Unassigned';
-    const employee = employees.find(e => e.id === employeeId);
-    if (!employee) return 'Unknown User';
-    
-    // Return the most descriptive name available
-    if (employee.fullName) return employee.fullName;
-    if (employee.firstName && employee.lastName) return `${employee.firstName} ${employee.lastName}`;
-    if (employee.name) return employee.name;
-    if (employee.email) return employee.email;
-    return 'Unknown User';
+
+    // Check users collection first (from users setup)
+    const user = employees.find(e => e.id === employeeId || e.uid === employeeId);
+    if (user) {
+      // Return the most descriptive name available
+      if (user.fullName) return user.fullName;
+      if (user.firstName && user.lastName) return `${user.firstName} ${user.lastName}`;
+      if (user.name) return user.name;
+      if (user.email) return user.email;
+      if (user.displayName) return user.displayName;
+      return user.id || user.uid || 'User';
+    }
+
+    // Return employeeId if no user found but it exists
+    return employeeId || 'Unknown User';
   };
 
   const getEmployeeAvatar = (empId) => {

@@ -28,6 +28,7 @@ import toast from "react-hot-toast";
 
 function Tasks() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [tasks, setTasks] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);

@@ -48,6 +48,7 @@ const KanbanPage = () => {
   const [viewMode, setViewMode] = useState("board"); // board, list, timeline, table
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
   const [showTaskDetailModal, setShowTaskDetailModal] = useState(false);
+  const [taskDetailView, setTaskDetailView] = useState("style1"); // style1, style2, style3
   const [selectedTask, setSelectedTask] = useState(null);
   const [newTaskColumn, setNewTaskColumn] = useState("");
   const [draggedTask, setDraggedTask] = useState<any>(null);

@@ -296,7 +296,26 @@ const KanbanPage = () => {
           }
         );
 
-        unsubscribers.push(tasksUnsub, projectsUnsub, employeesUnsub);
+        // Also fetch users collection and merge with employees
+        const usersUnsub = onSnapshot(
+          collection(db, "users"),
+          (snapshot) => {
+            if (mounted) {
+              const users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+              setEmployees(prev => {
+                // Merge users with employees, avoid duplicates
+                const existingIds = prev.map(emp => emp.id);
+                const newUsers = users.filter(user => !existingIds.includes(user.id) && !existingIds.includes(user.uid));
+                return [...prev, ...newUsers];
+              });
+            }
+          },
+          (error) => {
+            console.warn("Users listener error:", error);
+          }
+        );
+
+        unsubscribers.push(tasksUnsub, projectsUnsub, employeesUnsub, usersUnsub);
       } catch (error) {
         console.error("Failed to setup Firebase listeners:", error);
         if (mounted) {

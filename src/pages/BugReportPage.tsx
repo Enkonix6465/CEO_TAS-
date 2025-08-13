@@ -465,8 +465,17 @@ const BugReportPage = () => {
 
   // Helper functions
   const getEmployeeName = (id: string) => {
-    const employee = employees.find((emp) => emp.id === id);
-    return employee ? employee.name : "Unassigned";
+    if (!id) return "Unassigned";
+    const employee = employees.find((emp) => emp.id === id || emp.uid === id);
+    if (employee) {
+      if (employee.fullName) return employee.fullName;
+      if (employee.firstName && employee.lastName) return `${employee.firstName} ${employee.lastName}`;
+      if (employee.name) return employee.name;
+      if (employee.displayName) return employee.displayName;
+      if (employee.email) return employee.email;
+      return employee.id || employee.uid || 'User';
+    }
+    return id === 'admin' ? 'Admin' : id;
   };
 
   const getEmployeeAvatar = (id: string) => {

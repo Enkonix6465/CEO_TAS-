@@ -103,8 +103,17 @@ const ProjectDetail = () => {
 
   // Function to get employee name by ID
   const getEmployeeName = (employeeId) => {
-    const employee = employees.find(e => e.id === employeeId);
-    return employee ? employee.name : 'Unknown';
+    if (!employeeId) return 'Unknown';
+    const employee = employees.find(e => e.id === employeeId || e.uid === employeeId);
+    if (employee) {
+      if (employee.fullName) return employee.fullName;
+      if (employee.firstName && employee.lastName) return `${employee.firstName} ${employee.lastName}`;
+      if (employee.name) return employee.name;
+      if (employee.displayName) return employee.displayName;
+      if (employee.email) return employee.email;
+      return employee.id || employee.uid || 'User';
+    }
+    return employeeId === 'admin' ? 'Admin' : employeeId;
   };
 
   // Function to add a comment to a project

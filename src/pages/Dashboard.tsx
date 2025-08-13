@@ -785,7 +785,7 @@ const Dashboard = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4 }}
-            className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border-2 border-purple-500/50 dark:border-purple-500/30 rounded-2xl p-4 shadow-lg"
+            className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border-2 border-violet-200/50 dark:border-violet-500/30 rounded-2xl p-4 shadow-lg"
           >
             <div className="flex items-center gap-2 mb-4">
               <div className="p-1.5 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg">

@@ -248,11 +248,25 @@ function Tasks() {
 
   // Function to check if a task is overdue
   const isTaskOverdue = (task) => {
-    if (!task || !task.dueDate || task.status === 'completed' || task.status === 'cancelled') return false;
-    const dueDate = new Date(task.dueDate);
+    if (!task || task.status === 'completed' || task.status === 'cancelled') return false;
+
+    // Handle different date field names and formats
+    const dueDate = task.dueDate || task.due_date;
+    if (!dueDate) return false;
+
+    let due;
+    if (typeof dueDate === 'string') {
+      due = new Date(dueDate);
+    } else if (dueDate.seconds) {
+      // Firestore timestamp
+      due = new Date(dueDate.seconds * 1000);
+    } else {
+      due = new Date(dueDate);
+    }
+
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return dueDate < today;
+    today.setHours(23, 59, 59, 999); // End of today
+    return due < today;
   };
 
   const filteredTasks = tasks.filter((task) => {

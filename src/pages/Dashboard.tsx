@@ -453,10 +453,16 @@ const Dashboard = () => {
  
   const handleCardClick = (status: string) => {
     setCardFilter(status === cardFilter ? null : status);
-   
+
+    // Use both localStorage and React Router state for better reliability
     localStorage.setItem('taskStatusFilter', status);
-    
-    navigate('/tasks');
+
+    navigate('/tasks', {
+      state: {
+        filterStatus: status,
+        fromDashboard: true
+      }
+    });
   };
 
   const getStatusBadgeStyle = (status: string) => {

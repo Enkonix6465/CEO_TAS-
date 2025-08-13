@@ -72,22 +72,33 @@ const ViewTicket = () => {
 
         console.log("Total tickets found:", allTickets.length);
 
-        if (userId && allTickets.length > 0) {
-          // More flexible filtering - check multiple possible fields
+        if (allTickets.length > 0) {
+          // Show tickets raised by admin or assigned to current user
           const filtered = allTickets.filter((ticket) => {
-            return ticket.teamLeadId === userId ||
-                   ticket.assigned_to === userId ||
-                   ticket.assignee === userId ||
-                   ticket.created_by === userId ||
-                   ticket.teamLead === userId;
+            // Check if ticket is raised by admin (multiple admin identifiers)
+            const isAdminTicket = ticket.created_by === 'admin' ||
+                                  ticket.createdBy === 'admin' ||
+                                  ticket.raisedBy === 'admin' ||
+                                  ticket.role === 'admin' ||
+                                  ticket.isAdminTicket === true;
+
+            // Check if ticket is assigned to current user
+            const isAssignedToUser = userId && (
+              ticket.teamLeadId === userId ||
+              ticket.assigned_to === userId ||
+              ticket.assignee === userId ||
+              ticket.teamLead === userId
+            );
+
+            return isAdminTicket || isAssignedToUser;
           });
 
-          console.log("Filtered tickets for user:", filtered.length);
+          console.log("Admin/assigned tickets found:", filtered.length);
+          console.log("Sample ticket data:", allTickets[0]); // Debug ticket structure
           setTickets(filtered);
         } else {
-          // If no user ID or no tickets found, show all tickets for debugging
-          console.log("No user ID or no tickets found, showing all tickets");
-          setTickets(allTickets);
+          console.log("No tickets found in any collection");
+          setTickets([]);
         }
 
         setLoading(false);

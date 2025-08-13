@@ -71,8 +71,17 @@ const getPerformanceLabel = (percent: number) => {
 
 // Function to get employee name by ID
 const getEmployeeName = (employeeId: string) => {
-  const employee = employees.find(e => e.id === employeeId);
-  return employee ? `${employee.firstName} ${employee.lastName}` : 'Unknown';
+  if (!employeeId) return 'Unknown';
+  const employee = employees.find(e => e.id === employeeId || e.uid === employeeId);
+  if (employee) {
+    if (employee.fullName) return employee.fullName;
+    if (employee.firstName && employee.lastName) return `${employee.firstName} ${employee.lastName}`;
+    if (employee.name) return employee.name;
+    if (employee.displayName) return employee.displayName;
+    if (employee.email) return employee.email;
+    return employee.id || employee.uid || 'User';
+  }
+  return employeeId === 'admin' ? 'Admin' : employeeId;
 };
 
 // Function to get team name by ID (will be moved inside component)
@@ -100,8 +109,17 @@ const Dashboard = () => {
 
   // Function to get employee name by ID
   const getEmployeeName = (empId: string) => {
-    const employee = employees.find(emp => emp.id === empId);
-    return employee ? employee.name || `${employee.firstName} ${employee.lastName}` : empId;
+    if (!empId) return 'Unknown';
+    const employee = employees.find(emp => emp.id === empId || emp.uid === empId);
+    if (employee) {
+      if (employee.fullName) return employee.fullName;
+      if (employee.firstName && employee.lastName) return `${employee.firstName} ${employee.lastName}`;
+      if (employee.name) return employee.name;
+      if (employee.displayName) return employee.displayName;
+      if (employee.email) return employee.email;
+      return employee.id || employee.uid || 'User';
+    }
+    return empId === 'admin' ? 'Admin' : empId;
   };
 
   // Function to get performance label

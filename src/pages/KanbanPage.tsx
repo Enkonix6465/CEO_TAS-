@@ -374,8 +374,19 @@ const KanbanPage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [filterOpen]);
 
-  const getEmployeeName = (empId: string) =>
-    employees.find((emp: any) => emp.id === empId)?.name || "Unassigned";
+  const getEmployeeName = (empId: string) => {
+    if (!empId) return "Unassigned";
+    const employee = employees.find((emp: any) => emp.id === empId || emp.uid === empId);
+    if (employee) {
+      if (employee.fullName) return employee.fullName;
+      if (employee.firstName && employee.lastName) return `${employee.firstName} ${employee.lastName}`;
+      if (employee.name) return employee.name;
+      if (employee.displayName) return employee.displayName;
+      if (employee.email) return employee.email;
+      return employee.id || employee.uid || 'User';
+    }
+    return empId === 'admin' ? 'Admin' : empId;
+  };
 
   const getEmployeeAvatar = (empId: string) => {
     const emp = employees.find((emp: any) => emp.id === empId);

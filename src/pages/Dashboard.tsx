@@ -443,9 +443,9 @@ const Dashboard = () => {
  
   const handleCardClick = (status: string) => {
     setCardFilter(status === cardFilter ? null : status);
-    // Store the filter in localStorage for TaskDetail page to use
+   
     localStorage.setItem('taskStatusFilter', status);
-    // Navigate to TaskDetail page with the filter
+    
     navigate('/tasks');
   };
 

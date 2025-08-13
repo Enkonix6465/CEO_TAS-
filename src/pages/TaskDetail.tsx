@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { doc, getDoc, updateDoc, collection, onSnapshot, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, onSnapshot, serverTimestamp, arrayUnion } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
 import { motion } from "framer-motion";
 import { ExternalLink, Calendar, Clock, User, Flag, CheckCircle, Circle, Edit2, Target, AlertCircle, RefreshCw, Play, Square, MessageSquare } from "lucide-react";

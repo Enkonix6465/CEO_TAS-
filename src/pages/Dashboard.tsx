@@ -97,6 +97,20 @@ const Dashboard = () => {
     const project = projects.find(p => p.id === projectId);
     return project ? project.name : 'Unknown Project';
   };
+
+  // Function to get employee name by ID
+  const getEmployeeName = (empId: string) => {
+    const employee = employees.find(emp => emp.id === empId);
+    return employee ? employee.name || `${employee.firstName} ${employee.lastName}` : empId;
+  };
+
+  // Function to get performance label
+  const getPerformanceLabel = (percent: number) => {
+    if (percent >= 90) return { label: "Excellent", color: "bg-green-600" };
+    if (percent >= 70) return { label: "Good", color: "bg-yellow-500" };
+    if (percent >= 50) return { label: "Average", color: "bg-orange-500" };
+    return { label: "Poor", color: "bg-red-600" };
+  };
   
   // Status title mapping
   const statusTitles = {

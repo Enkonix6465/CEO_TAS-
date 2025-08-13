@@ -726,7 +726,7 @@ const Dashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -2, transition: { duration: 0.2 } }}
-              className={`bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border-2 ${cardFilter === (stat.title === 'Pending' ? 'pending' : stat.title === 'Active' ? 'in-progress' : stat.title === 'Done' ? 'completed' : stat.title === 'Overdue' ? 'overdue' : null) ? `border-${stat.color}-500 dark:border-${stat.color}-400` : 'border-purple-500/50 dark:border-purple-500/30'} rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer`}
+              className={`bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border-2 ${cardFilter === (stat.title === 'Pending' ? 'pending' : stat.title === 'Active' ? 'in-progress' : stat.title === 'Done' ? 'completed' : stat.title === 'Overdue' ? 'overdue' : null) ? `border-${stat.color}-500 dark:border-${stat.color}-400` : 'border-violet-200/50 dark:border-violet-500/30'} rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer`}
               onClick={() => {
                 switch (stat.title) {
                   case 'Projects':

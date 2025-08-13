@@ -980,7 +980,8 @@ const Calendar = () => {
                 {getEventsForDate(selectedDate).map((event, index) => (
                   <div
                     key={index}
-                    className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                    className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
+                    onClick={() => navigate(`/task/${event.id}`)}
                   >
                    
                     <div className="flex-1 min-w-0">

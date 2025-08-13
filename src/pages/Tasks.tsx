@@ -61,12 +61,20 @@ function Tasks() {
         setHasError(false);
         setupTaskListeners();
         
-        // Check if there's a filter from Dashboard page
-        const statusFilter = localStorage.getItem('taskStatusFilter');
-        if (statusFilter) {
-          setFilterStatus(statusFilter);
-          // Clear the filter after using it
-          localStorage.removeItem('taskStatusFilter');
+        // Check if there's a filter from Dashboard page (Router state takes priority)
+        const routerState = location.state as any;
+        if (routerState?.filterStatus && routerState?.fromDashboard) {
+          setFilterStatus(routerState.filterStatus);
+          // Clear the router state after using it
+          window.history.replaceState({}, document.title);
+        } else {
+          // Fallback to localStorage
+          const statusFilter = localStorage.getItem('taskStatusFilter');
+          if (statusFilter) {
+            setFilterStatus(statusFilter);
+            // Clear the filter after using it
+            localStorage.removeItem('taskStatusFilter');
+          }
         }
         
         if (connectionStatus === 'offline' && retryCount < 3) {

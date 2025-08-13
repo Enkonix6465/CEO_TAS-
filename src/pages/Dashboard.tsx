@@ -347,7 +347,17 @@ const Dashboard = () => {
       const teamsUnsub = safeOnSnapshot("teams", setTeams);
       const employeesUnsub = safeOnSnapshot("employees", setEmployees);
 
-      unsubscribers.push(projectsUnsub, tasksUnsub, teamsUnsub, employeesUnsub);
+      // Also fetch users collection and merge with employees
+      const usersUnsub = safeOnSnapshot("users", (users) => {
+        setEmployees(prev => {
+          // Merge users with employees, avoid duplicates
+          const existingIds = prev.map(emp => emp.id);
+          const newUsers = users.filter(user => !existingIds.includes(user.id) && !existingIds.includes(user.uid));
+          return [...prev, ...newUsers];
+        });
+      });
+
+      unsubscribers.push(projectsUnsub, tasksUnsub, teamsUnsub, employeesUnsub, usersUnsub);
 
       return unsubscribers;
     } catch (error) {

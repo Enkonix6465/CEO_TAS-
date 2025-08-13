@@ -218,15 +218,14 @@ export function LoginForm({
 
             {/* Main Content */}
             <div className="relative z-10 h-full flex flex-col items-center justify-center p-8 text-white">
-              {/* Enhanced Lottie Animation Container */}
+              {/* Enhanced Animation Container */}
               <div className="bg-white/15 backdrop-blur-2xl rounded-[2rem] p-10 mb-8 border-2 border-white/30 shadow-2xl transform hover:scale-105 transition-all duration-500 hover:shadow-purple-500/25">
-                <div className="w-56 h-56 rounded-3xl overflow-hidden shadow-2xl">
-                  <DotLottieReact
-                    src="https://lottie.host/f6c203e3-f55a-4f37-ae40-543cb7429268/Tw28xCsivC.lottie"
-                    loop
-                    autoplay
-                    className="w-full h-full object-cover"
-                  />
+                <div className="w-56 h-56 rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center bg-gradient-to-br from-blue-500/20 to-purple-500/20">
+                  <div className="w-32 h-32 bg-white/20 rounded-full flex items-center justify-center animate-pulse">
+                    <div className="w-20 h-20 bg-white/30 rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-white/40 rounded-full animate-ping"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
 

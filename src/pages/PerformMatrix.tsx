@@ -47,6 +47,7 @@ import {
 
 export default function EmployeePerformancePage() {
   const { user } = useAuthStore();
+  const [searchParams] = useSearchParams();
   const [tasks, setTasks] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [employees, setEmployees] = useState([]);

@@ -563,17 +563,17 @@ const KanbanPage = () => {
     const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== "completed";
 
     const getCardBgColor = () => {
-      if (isOverdue) return 'enhanced-glass-card border-2 border-red-300/40 dark:border-red-400/50 bg-gradient-to-br from-red-50/70 via-pink-50/60 to-rose-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
+      if (isOverdue) return 'bg-white border border-red-200 dark:border-red-400/50 dark:bg-black/90 shadow-sm';
 
       switch (task.status) {
         case 'completed':
-          return 'enhanced-glass-card border-2 border-purple-300/50 dark:border-purple-400/50 bg-gradient-to-br from-violet-50/70 via-gray-50/60 to-slate-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
+          return 'bg-white border border-gray-200 dark:border-purple-400/50 dark:bg-black/90 shadow-sm';
         case 'in_progress':
-          return 'enhanced-glass-card border-2 border-purple-300/50 dark:border-purple-400/50 bg-gradient-to-br from-violet-50/70 via-sky-50/60 to-indigo-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
+          return 'bg-white border border-gray-200 dark:border-blue-400/50 dark:bg-black/90 shadow-sm';
         case 'review':
-          return 'enhanced-glass-card border-2 border-purple-300/50 dark:border-purple-400/50 bg-gradient-to-br from-violet-50/70 via-slate-50/60 to-blue-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
+          return 'bg-white border border-gray-200 dark:border-purple-400/50 dark:bg-black/90 shadow-sm';
         default:
-          return 'enhanced-glass-card border-2 border-purple-300/50 dark:border-purple-400/50 bg-gradient-to-br from-violet-50/70 via-slate-50/60 to-blue-50/70 dark:from-black/90 dark:via-black/80 dark:to-black/90';
+          return 'bg-white border border-gray-200 dark:border-gray-400/50 dark:bg-black/90 shadow-sm';
       }
     };
 

@@ -749,7 +749,7 @@ const Dashboard = () => {
               onClick={() => {
                 switch (stat.title) {
                   case 'Projects':
-                    navigate('/projects');
+                    setShowProjectSummary(true);
                     break;
                   case 'Pending':
                     handleCardClick('pending');

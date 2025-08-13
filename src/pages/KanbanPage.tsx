@@ -326,6 +326,41 @@ const KanbanPage = () => {
     };
   }, []);
 
+  // Comment handling functionality
+  const handleAddComment = async () => {
+    if (!newComment.trim() || !selectedTask) return;
+
+    setCommentLoading(true);
+    try {
+      const comment = {
+        text: newComment.trim(),
+        timestamp: new Date().toISOString(),
+        userId: auth.currentUser?.uid || 'anonymous',
+      };
+
+      if (db) {
+        const taskRef = doc(db, "tasks", selectedTask.id);
+        await updateDoc(taskRef, {
+          comments: arrayUnion(comment)
+        });
+      }
+
+      // Update local state
+      setSelectedTask((prev: any) => ({
+        ...prev,
+        comments: [...(prev?.comments || []), comment]
+      }));
+
+      setNewComment("");
+      toast.success("Comment added successfully!");
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      toast.error("Failed to add comment");
+    } finally {
+      setCommentLoading(false);
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (filterOpen && !(event.target as Element).closest('.filter-dropdown')) {

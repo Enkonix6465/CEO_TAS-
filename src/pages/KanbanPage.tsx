@@ -367,12 +367,12 @@ const KanbanPage = () => {
   // Enhanced color schemes for better visual appeal
   const getColumnColors = (status: string) => {
     const lightTheme = {
-      pending: { bg: 'from-amber-50 to-orange-50', border: 'border-amber-200', icon: 'text-amber-600' },
-      in_progress: { bg: 'from-blue-50 to-cyan-50', border: 'border-blue-200', icon: 'text-blue-600' },
-      review: { bg: 'from-purple-50 to-indigo-50', border: 'border-purple-200', icon: 'text-purple-600' },
-      completed: { bg: 'from-emerald-50 to-green-50', border: 'border-emerald-200', icon: 'text-emerald-600' }
+      pending: { bg: 'bg-white', border: 'border-gray-200', icon: 'text-amber-600' },
+      in_progress: { bg: 'bg-white', border: 'border-gray-200', icon: 'text-blue-600' },
+      review: { bg: 'bg-white', border: 'border-gray-200', icon: 'text-purple-600' },
+      completed: { bg: 'bg-white', border: 'border-gray-200', icon: 'text-emerald-600' }
     };
-    
+
     const darkTheme = {
       pending: { bg: 'from-amber-900/20 to-orange-900/20', border: 'border-amber-500/30', icon: 'text-amber-400' },
       in_progress: { bg: 'from-blue-900/20 to-cyan-900/20', border: 'border-blue-500/30', icon: 'text-blue-400' },

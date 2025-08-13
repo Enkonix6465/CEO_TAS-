@@ -3,6 +3,7 @@ import { collection, getDocs, addDoc, updateDoc, doc, Timestamp, onSnapshot, arr
 import { db, auth } from "../lib/firebase";
 import { useAuthStore } from "../store/authStore";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   Plus,
   Filter,
@@ -36,6 +37,7 @@ import toast from "react-hot-toast";
 
 const KanbanPage = () => {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [employees, setEmployees] = useState<any[]>([]);
@@ -763,7 +765,13 @@ const KanbanPage = () => {
               alt="avatar"
               className="w-6 h-6 rounded-full border-2 border-white dark:border-gray-600 shadow-lg ring-2 ring-white/50 dark:ring-gray-400/30"
             />
-            <span className="font-medium">{getEmployeeName(task.assigned_to)}</span>
+            <span
+              className="font-medium hover:text-blue-600 dark:hover:text-purple-400 cursor-pointer transition-colors duration-200"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/PerformMatrix?empId=${task.assigned_to}`);
+              }}
+            >{getEmployeeName(task.assigned_to)}</span>
           </div>
           
           <div className="flex items-center gap-3">

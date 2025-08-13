@@ -1631,7 +1631,7 @@ const KanbanPage = () => {
         )}
       </AnimatePresence>
 
-      {/* Enhanced Task Detail Modal */}
+      {/* Task Detail Modal - Style 1 (First Image Layout) */}
       <AnimatePresence>
         {showTaskDetailModal && selectedTask && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -1639,161 +1639,254 @@ const KanbanPage = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => setShowTaskDetailModal(false)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 40 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 40 }}
-              transition={{ type: "spring", damping: 20, stiffness: 300 }}
-              className="relative w-full max-w-4xl bg-gradient-to-br from-white to-gray-50 dark:from-black/95 dark:to-black/90 rounded-3xl shadow-2xl max-h-[90vh] overflow-y-auto border-2 border-purple-200/50 dark:border-purple-500/30"
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-4xl bg-white dark:bg-gray-900 rounded-lg shadow-xl max-h-[90vh] overflow-hidden"
             >
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 text-white relative overflow-hidden">
-                <div className="absolute inset-0 bg-black/10"></div>
-                <div className="relative flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: 0.2 }}
-                      className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm"
-                    >
-                      {getPriorityIcon(selectedTask.priority)}
-                    </motion.div>
-                    <div>
-                      <motion.h2
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="text-2xl font-bold text-white"
-                      >
-                        {selectedTask.title}
-                      </motion.h2>
-                      <motion.p
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="text-blue-100 text-sm"
-                      >
-                        Task #{selectedTask.id?.slice(-8)} • {selectedTask.status?.replace('_', ' ').toUpperCase()}
-                      </motion.p>
+              {/* Header */}
+              <div className="bg-white dark:bg-gray-900 p-6 border-b border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                      <Circle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     </div>
+                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      {selectedTask.title || "Slot 7"}
+                    </h2>
                   </div>
-                  <motion.button
-                    initial={{ opacity: 0, rotate: -90 }}
-                    animate={{ opacity: 1, rotate: 0 }}
-                    whileHover={{ scale: 1.1, rotate: 90 }}
+                  <button
                     onClick={() => setShowTaskDetailModal(false)}
-                    className="w-10 h-10 flex items-center justify-center text-white/80 hover:text-white transition-colors rounded-xl hover:bg-white/20 backdrop-blur-sm"
+                    className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                   >
                     <X className="w-5 h-5" />
-                  </motion.button>
+                  </button>
                 </div>
               </div>
 
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Main Content */}
-                  <div className="md:col-span-2 space-y-6">
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Description</h3>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        {selectedTask.description || "No description provided."}
-                      </p>
+              <div className="p-6 overflow-y-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Left Column */}
+                  <div className="space-y-6">
+                    {/* Basic Info */}
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Project:</label>
+                          <p className="text-sm text-gray-900 dark:text-white mt-1">
+                            {projects.find(p => p.id === selectedTask.project_id)?.name || "WP Reshma"}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Status:</label>
+                          <p className="text-sm text-gray-900 dark:text-white mt-1 capitalize">
+                            {selectedTask.status?.replace('_', ' ') || "Completed"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Due Date:</label>
+                          <p className="text-sm text-gray-900 dark:text-white mt-1">
+                            {selectedTask.due_date ? new Date(selectedTask.due_date).toLocaleDateString() : "2025-08-11T11:59"}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Progress:</label>
+                          <p className="text-sm text-gray-900 dark:text-white mt-1">
+                            {selectedTask.status?.replace('_', ' ') || "completed"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Assigned:</label>
+                          <p className="text-sm text-gray-900 dark:text-white mt-1">
+                            {getEmployeeName(selectedTask.assigned_to)}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Created By:</label>
+                          <p className="text-sm text-gray-900 dark:text-white mt-1">
+                            {getEmployeeName(selectedTask.created_by) || "Hemanth-prudhvi"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Review:</label>
+                          <p className="text-sm text-gray-900 dark:text-white mt-1">—</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Created:</label>
+                          <p className="text-sm text-gray-900 dark:text-white mt-1">
+                            {selectedTask.created_at?.seconds ?
+                              new Date(selectedTask.created_at.seconds * 1000).toLocaleDateString() :
+                              "3/6/2025, 10:24:47 PM"
+                            }
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Progress Updated:</label>
+                        <p className="text-sm text-gray-900 dark:text-white mt-1">
+                          {selectedTask.progress_updated_at?.seconds ?
+                            new Date(selectedTask.progress_updated_at.seconds * 1000).toLocaleDateString() :
+                            "8/11/2025, 12:00:59 PM"
+                          }
+                        </p>
+                      </div>
                     </div>
 
-                    {selectedTask.progress > 0 && (
-                      <div>
-                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Progress</h3>
-                        <div className="flex items-center gap-3">
-                          <div className="flex-1 bg-gray-200 rounded-full h-2">
-                            <div
-                              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${selectedTask.progress}%` }}
-                            />
-                          </div>
-                          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {selectedTask.progress}%
-                          </span>
-                        </div>
+                    {/* Description */}
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Description</label>
+                      <div className="mt-2 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          {selectedTask.description || "—"}
+                        </p>
                       </div>
-                    )}
+                    </div>
 
-                    {selectedTask.tags && (
-                      <div>
-                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Tags</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedTask.tags.split(',').map((tag: string, index: number) => (
-                            <span
-                              key={index}
-                              className="px-3 py-1 text-sm bg-blue-100 text-blue-600 rounded-lg"
-                            >
-                              #{tag.trim()}
-                            </span>
-                          ))}
-                        </div>
+                    {/* Progress Notes */}
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Progress Notes</label>
+                      <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          —
+                        </p>
                       </div>
-                    )}
+                    </div>
                   </div>
 
-                  {/* Sidebar */}
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Status</h3>
-                      <span className={`px-3 py-1 text-sm rounded-lg ${
-                        selectedTask.status === "completed" ? "bg-green-100 text-green-700" :
-                        selectedTask.status === "in_progress" ? "bg-blue-100 text-blue-700" :
-                        selectedTask.status === "review" ? "bg-yellow-100 text-yellow-700" :
-                        "bg-gray-100 text-gray-700"
-                      }`}>
-                        {selectedTask.status?.replace('_', ' ').toUpperCase()}
-                      </span>
-                    </div>
+                  {/* Right Column */}
+                  <div className="space-y-6">
+                    {/* Details Panel */}
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Details</h3>
 
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Priority</h3>
-                      <span className={`px-3 py-1 text-sm rounded-lg border ${getPriorityBadge(selectedTask.priority)}`}>
-                        {selectedTask.priority?.toUpperCase()}
-                      </span>
-                    </div>
+                      <div className="space-y-3">
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Assignee:</span>
+                          <span className="text-sm text-gray-900 dark:text-white">{getEmployeeName(selectedTask.assigned_to)}</span>
+                        </div>
 
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Assignee</h3>
-                      <div className="flex items-center gap-2">
-                        <img
-                          src={getEmployeeAvatar(selectedTask.assigned_to)}
-                          alt="avatar"
-                          className="w-8 h-8 rounded-full"
-                        />
-                        <span className="text-sm text-gray-900 dark:text-gray-100">
-                          {getEmployeeName(selectedTask.assigned_to)}
-                        </span>
-                      </div>
-                    </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Reporter:</span>
+                          <span className="text-sm text-gray-900 dark:text-white">{getEmployeeName(selectedTask.created_by) || "Hemanth-prudhvi"}</span>
+                        </div>
 
-                    {selectedTask.due_date && (
-                      <div>
-                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Due Date</h3>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm text-gray-900 dark:text-gray-100">
-                            {new Date(selectedTask.due_date).toLocaleDateString()}
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Status:</span>
+                          <span className="text-sm text-green-600 dark:text-green-400 font-medium capitalize">
+                            {selectedTask.status?.replace('_', ' ') || "Completed"}
                           </span>
                         </div>
-                      </div>
-                    )}
 
-                    {selectedTask.project_id && (
-                      <div>
-                        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Project</h3>
-                        <span 
-                          className="px-3 py-1 text-sm text-white rounded-lg"
-                          style={{ backgroundColor: getProjectColor(selectedTask.project_id) }}
-                        >
-                          {projects.find(p => p.id === selectedTask.project_id)?.name || "Unknown Project"}
-                        </span>
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Priority:</span>
+                          <span className="text-sm text-gray-900 dark:text-white capitalize">
+                            {selectedTask.priority || "Medium"}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Labels:</span>
+                          <span className="text-sm text-gray-900 dark:text-white">None</span>
+                        </div>
+
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Due date:</span>
+                          <span className="text-sm text-gray-900 dark:text-white">
+                            {selectedTask.due_date ? new Date(selectedTask.due_date).toLocaleDateString() : "2025-08-11T11:59"}
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Start date:</span>
+                          <span className="text-sm text-gray-900 dark:text-white">None</span>
+                        </div>
+
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Progress Updated:</span>
+                          <span className="text-sm text-gray-900 dark:text-white">
+                            {selectedTask.progress_updated_at?.seconds ?
+                              new Date(selectedTask.progress_updated_at.seconds * 1000).toLocaleString() :
+                              "8/11/2025, 12:00:59 PM"
+                            }
+                          </span>
+                        </div>
+
+                        <div className="flex justify-between">
+                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Review:</span>
+                          <span className="text-sm text-gray-900 dark:text-white">—</span>
+                        </div>
                       </div>
-                    )}
+                    </div>
+
+                    {/* Comments Section */}
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2">
+                        <MessageCircle className="w-4 h-4" />
+                        Comments
+                      </h3>
+
+                      <div className="space-y-3 max-h-64 overflow-y-auto">
+                        {selectedTask.comments?.length > 0 ? (
+                          selectedTask.comments.map((comment: any, index: number) => (
+                            <div key={index} className="flex gap-3 p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                              <img
+                                src={getEmployeeAvatar(comment.userId || 'default')}
+                                alt="avatar"
+                                className="w-8 h-8 rounded-full flex-shrink-0"
+                              />
+                              <div className="flex-1">
+                                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                                  {getEmployeeName(comment.userId) || "User"} • {new Date(comment.timestamp?.seconds * 1000 || Date.now()).toLocaleDateString()}
+                                </div>
+                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                  {comment.text || comment}
+                                </p>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-8">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">No comments yet</p>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mt-4 p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div className="flex gap-3">
+                          <img
+                            src={getEmployeeAvatar(user?.uid || 'current')}
+                            alt="avatar"
+                            className="w-8 h-8 rounded-full flex-shrink-0"
+                          />
+                          <div className="flex-1">
+                            <textarea
+                              placeholder="Write a comment..."
+                              className="w-full p-2 text-sm border-0 bg-transparent text-gray-900 dark:text-white resize-none focus:outline-none placeholder:text-gray-500"
+                              rows={2}
+                            />
+                            <div className="flex justify-end mt-2">
+                              <button className="px-4 py-1.5 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors">
+                                Post Comment
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

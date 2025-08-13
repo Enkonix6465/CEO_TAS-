@@ -48,18 +48,46 @@ const ViewTicket = () => {
     const fetchTickets = async () => {
       try {
         if (!db) throw new Error("Firestore is not initialized");
-        const ticketSnap = await getDocs(collection(db, "raiseTickets"));
-        const allTickets: any[] = [];
-        ticketSnap.forEach((docSnap) => {
-          const ticketData = { id: docSnap.id, ...docSnap.data() };
-          allTickets.push(ticketData);
-        });
 
-        if (userId) {
-          const filtered = allTickets.filter(
-            (ticket) => ticket.teamLeadId === userId
-          );
+        console.log("Fetching tickets for user:", userId);
+
+        // Try multiple collection names that might contain tickets
+        const collectionNames = ["raiseTickets", "tickets", "projectTickets"];
+        let allTickets: any[] = [];
+
+        for (const collectionName of collectionNames) {
+          try {
+            const ticketSnap = await getDocs(collection(db, collectionName));
+            const collectionTickets: any[] = [];
+            ticketSnap.forEach((docSnap) => {
+              const ticketData = { id: docSnap.id, ...docSnap.data(), _collection: collectionName };
+              collectionTickets.push(ticketData);
+            });
+            allTickets = [...allTickets, ...collectionTickets];
+            console.log(`Found ${collectionTickets.length} tickets in ${collectionName}`);
+          } catch (collectionError) {
+            console.warn(`Error fetching from ${collectionName}:`, collectionError);
+          }
+        }
+
+        console.log("Total tickets found:", allTickets.length);
+
+        if (userId && allTickets.length > 0) {
+          // More flexible filtering - check multiple possible fields
+          const filtered = allTickets.filter((ticket) => {
+            return ticket.teamLeadId === userId ||
+                   ticket.assigned_to === userId ||
+                   ticket.assignee === userId ||
+                   ticket.created_by === userId ||
+                   ticket.teamLead === userId;
+          });
+
+          console.log("Filtered tickets for user:", filtered.length);
           setTickets(filtered);
+        } else {
+          // If no user ID or no tickets found, show all tickets for debugging
+          console.log("No user ID or no tickets found, showing all tickets");
+          setTickets(allTickets);
         }
 
         setLoading(false);
@@ -71,6 +99,8 @@ const ViewTicket = () => {
 
     if (userId) {
       fetchTickets();
+    } else {
+      setLoading(false);
     }
   }, [userId]);
 
@@ -119,9 +149,14 @@ const ViewTicket = () => {
           <h2 className="text-2xl font-bold text-violet-800 dark:text-violet-200 mb-3">
             🎫 No Tickets Found
           </h2>
-          <p className="text-violet-600/70 dark:text-violet-300/70 text-lg">
+          <p className="text-violet-600/70 dark:text-violet-300/70 text-lg mb-4">
             No tickets are currently assigned to you.
           </p>
+          <div className="bg-blue-50/50 dark:bg-blue-900/20 rounded-xl p-4 text-sm text-blue-700 dark:text-blue-300">
+            <p className="mb-2"><strong>Debug Info:</strong></p>
+            <p>User ID: {userId || 'Not authenticated'}</p>
+            <p>Check the browser console for more details.</p>
+          </div>
         </div>
       </div>
     );

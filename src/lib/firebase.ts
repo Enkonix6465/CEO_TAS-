@@ -35,9 +35,16 @@ let db: Firestore | null;
 
 try {
   app = initializeApp(firebaseConfig);
-  analytics = getAnalytics(app);
   auth = getAuth(app);
   db = getFirestore(app);
+
+  // Initialize analytics with error handling
+  try {
+    analytics = getAnalytics(app);
+  } catch (analyticsError) {
+    console.warn("Firebase Analytics initialization failed:", analyticsError);
+    analytics = null;
+  }
 
   console.log("Firebase initialized successfully");
 } catch (error) {

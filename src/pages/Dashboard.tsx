@@ -435,12 +435,12 @@ const Dashboard = () => {
     return employee ? employee.name : "Unknown";
   };
   
-  // Get project tasks by project ID
+ 
   const getProjectTasks = (projectId: string) => {
     return tasks.filter(task => task.project_id === projectId);
   };
 
-  // Handle card click to filter tasks
+ 
   const handleCardClick = (status: string) => {
     setCardFilter(status === cardFilter ? null : status);
     // Store the filter in localStorage for TaskDetail page to use

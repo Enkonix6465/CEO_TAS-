@@ -1706,226 +1706,346 @@ const KanbanPage = () => {
               </div>
 
               <div className="p-6 overflow-y-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Left Column */}
-                  <div className="space-y-6">
-                    {/* Basic Info */}
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Project:</label>
-                          <p className="text-sm text-gray-900 dark:text-white mt-1">
-                            {projects.find(p => p.id === selectedTask.project_id)?.name || "WP Reshma"}
-                          </p>
+                {/* Style 1 - First Image Layout */}
+                {taskDetailView === "style1" && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Left Column */}
+                    <div className="space-y-6">
+                      {/* Basic Info */}
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Project:</label>
+                            <p className="text-sm text-gray-900 dark:text-white mt-1">
+                              {projects.find(p => p.id === selectedTask.project_id)?.name || "WP Reshma"}
+                            </p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Status:</label>
+                            <p className="text-sm text-gray-900 dark:text-white mt-1 capitalize">
+                              {selectedTask.status?.replace('_', ' ') || "Completed"}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Status:</label>
-                          <p className="text-sm text-gray-900 dark:text-white mt-1 capitalize">
-                            {selectedTask.status?.replace('_', ' ') || "Completed"}
-                          </p>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Due Date:</label>
+                            <p className="text-sm text-gray-900 dark:text-white mt-1">
+                              {selectedTask.due_date ? new Date(selectedTask.due_date).toLocaleDateString() : "2025-08-11T11:59"}
+                            </p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Progress:</label>
+                            <p className="text-sm text-gray-900 dark:text-white mt-1">
+                              {selectedTask.status?.replace('_', ' ') || "completed"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Assigned:</label>
+                            <p className="text-sm text-gray-900 dark:text-white mt-1">
+                              {getEmployeeName(selectedTask.assigned_to)}
+                            </p>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Created By:</label>
+                            <p className="text-sm text-gray-900 dark:text-white mt-1">
+                              {getEmployeeName(selectedTask.created_by) || "Hemanth-prudhvi"}
+                            </p>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Due Date:</label>
-                          <p className="text-sm text-gray-900 dark:text-white mt-1">
-                            {selectedTask.due_date ? new Date(selectedTask.due_date).toLocaleDateString() : "2025-08-11T11:59"}
-                          </p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Progress:</label>
-                          <p className="text-sm text-gray-900 dark:text-white mt-1">
-                            {selectedTask.status?.replace('_', ' ') || "completed"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Assigned:</label>
-                          <p className="text-sm text-gray-900 dark:text-white mt-1">
-                            {getEmployeeName(selectedTask.assigned_to)}
-                          </p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Created By:</label>
-                          <p className="text-sm text-gray-900 dark:text-white mt-1">
-                            {getEmployeeName(selectedTask.created_by) || "Hemanth-prudhvi"}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Review:</label>
-                          <p className="text-sm text-gray-900 dark:text-white mt-1">—</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Created:</label>
-                          <p className="text-sm text-gray-900 dark:text-white mt-1">
-                            {selectedTask.created_at?.seconds ?
-                              new Date(selectedTask.created_at.seconds * 1000).toLocaleDateString() :
-                              "3/6/2025, 10:24:47 PM"
-                            }
-                          </p>
-                        </div>
-                      </div>
-
+                      {/* Description */}
                       <div>
-                        <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Progress Updated:</label>
-                        <p className="text-sm text-gray-900 dark:text-white mt-1">
-                          {selectedTask.progress_updated_at?.seconds ?
-                            new Date(selectedTask.progress_updated_at.seconds * 1000).toLocaleDateString() :
-                            "8/11/2025, 12:00:59 PM"
-                          }
-                        </p>
+                        <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Description</label>
+                        <div className="mt-2 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                            {selectedTask.description || "—"}
+                          </p>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Description */}
-                    <div>
-                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Description</label>
-                      <div className="mt-2 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
-                          {selectedTask.description || "—"}
-                        </p>
-                      </div>
-                    </div>
+                    {/* Right Column */}
+                    <div className="space-y-6">
+                      {/* Details Panel */}
+                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Details</h3>
 
-                    {/* Progress Notes */}
-                    <div>
-                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Progress Notes</label>
-                      <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
-                          —
-                        </p>
+                        <div className="space-y-3">
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Assignee:</span>
+                            <span className="text-sm text-gray-900 dark:text-white">{getEmployeeName(selectedTask.assigned_to)}</span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Status:</span>
+                            <span className="text-sm text-green-600 dark:text-green-400 font-medium capitalize">
+                              {selectedTask.status?.replace('_', ' ') || "Completed"}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Priority:</span>
+                            <span className="text-sm text-gray-900 dark:text-white capitalize">
+                              {selectedTask.priority || "Medium"}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
+                )}
 
-                  {/* Right Column */}
-                  <div className="space-y-6">
-                    {/* Details Panel */}
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Details</h3>
+                {/* Style 2 - Second Image Layout */}
+                {taskDetailView === "style2" && (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left Side - Task Details & Assignment */}
+                    <div className="lg:col-span-2 space-y-6">
+                      {/* Task Details Section */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Task Details</h3>
 
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                            <div>
+                              <label className="text-sm text-gray-600 dark:text-gray-400">Status:</label>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">completed</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-blue-500" />
+                            <div>
+                              <label className="text-sm text-gray-600 dark:text-gray-400">Due Date:</label>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                {selectedTask.due_date ? new Date(selectedTask.due_date).toLocaleDateString() : "Not set"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Flag className="w-4 h-4 text-orange-500" />
+                          <div>
+                            <label className="text-sm text-gray-600 dark:text-gray-400">Priority:</label>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">
+                              {selectedTask.priority || "Medium"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Assignment Section */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Assignment</h3>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4 text-purple-500" />
+                            <div>
+                              <label className="text-sm text-gray-600 dark:text-gray-400">Assigned To:</label>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">Unassigned</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4 text-indigo-500" />
+                            <div>
+                              <label className="text-sm text-gray-600 dark:text-gray-400">Created By:</label>
+                              <p className="text-sm font-medium text-gray-900 dark:text-white">Unknown User</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-gray-500" />
+                          <div>
+                            <label className="text-sm text-gray-600 dark:text-gray-400">Created:</label>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {selectedTask.created_at?.seconds ?
+                                new Date(selectedTask.created_at.seconds * 1000).toLocaleDateString() :
+                                "6/8/2025, 10:21:08 pm"
+                              }
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Description Section */}
                       <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Assignee:</span>
-                          <span className="text-sm text-gray-900 dark:text-white">{getEmployeeName(selectedTask.assigned_to)}</span>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Reporter:</span>
-                          <span className="text-sm text-gray-900 dark:text-white">{getEmployeeName(selectedTask.created_by) || "Hemanth-prudhvi"}</span>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Status:</span>
-                          <span className="text-sm text-green-600 dark:text-green-400 font-medium capitalize">
-                            {selectedTask.status?.replace('_', ' ') || "Completed"}
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Priority:</span>
-                          <span className="text-sm text-gray-900 dark:text-white capitalize">
-                            {selectedTask.priority || "Medium"}
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Labels:</span>
-                          <span className="text-sm text-gray-900 dark:text-white">None</span>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Due date:</span>
-                          <span className="text-sm text-gray-900 dark:text-white">
-                            {selectedTask.due_date ? new Date(selectedTask.due_date).toLocaleDateString() : "2025-08-11T11:59"}
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Start date:</span>
-                          <span className="text-sm text-gray-900 dark:text-white">None</span>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Progress Updated:</span>
-                          <span className="text-sm text-gray-900 dark:text-white">
-                            {selectedTask.progress_updated_at?.seconds ?
-                              new Date(selectedTask.progress_updated_at.seconds * 1000).toLocaleString() :
-                              "8/11/2025, 12:00:59 PM"
-                            }
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Review:</span>
-                          <span className="text-sm text-gray-900 dark:text-white">—</span>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Description</h3>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                            {selectedTask.description || "No description provided."}
+                          </p>
                         </div>
                       </div>
                     </div>
 
-                    {/* Comments Section */}
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2">
-                        <MessageCircle className="w-4 h-4" />
-                        Comments
-                      </h3>
+                    {/* Right Side - Task Info & Comments */}
+                    <div className="space-y-6">
+                      {/* Task Info Card */}
+                      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                        <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-3">Task Details</h4>
 
-                      <div className="space-y-3 max-h-64 overflow-y-auto">
-                        {selectedTask.comments?.length > 0 ? (
-                          selectedTask.comments.map((comment: any, index: number) => (
-                            <div key={index} className="flex gap-3 p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                              <img
-                                src={getEmployeeAvatar(comment.userId || 'default')}
-                                alt="avatar"
-                                className="w-8 h-8 rounded-full flex-shrink-0"
-                              />
-                              <div className="flex-1">
-                                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                                  {getEmployeeName(comment.userId) || "User"} • {new Date(comment.timestamp?.seconds * 1000 || Date.now()).toLocaleDateString()}
-                                </div>
-                                <p className="text-sm text-gray-700 dark:text-gray-300">
-                                  {comment.text || comment}
-                                </p>
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="text-center py-8">
-                            <p className="text-sm text-gray-500 dark:text-gray-400">No comments yet</p>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-xs text-blue-600 dark:text-blue-400">Task ID:</span>
+                            <span className="text-xs font-medium text-blue-800 dark:text-blue-200">Edit/2ur</span>
                           </div>
-                        )}
+
+                          <div className="flex justify-between">
+                            <span className="text-xs text-blue-600 dark:text-blue-400">Status:</span>
+                            <span className="text-xs font-medium text-green-600 dark:text-green-400">completed</span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-xs text-blue-600 dark:text-blue-400">Priority:</span>
+                            <span className="text-xs font-medium text-blue-800 dark:text-blue-200">Medium</span>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="mt-4 p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <div className="flex gap-3">
-                          <img
-                            src={getEmployeeAvatar(user?.uid || 'current')}
-                            alt="avatar"
-                            className="w-8 h-8 rounded-full flex-shrink-0"
+                      {/* Timeline */}
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Timeline</h4>
+
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <div>
+                              <p className="text-xs font-medium text-gray-900 dark:text-white">Created</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {selectedTask.created_at?.seconds ?
+                                  new Date(selectedTask.created_at.seconds * 1000).toLocaleDateString() :
+                                  "6/8/2025, 20:21:08 pm"
+                                }
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Comments */}
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                          <MessageCircle className="w-4 h-4" />
+                          Comments
+                        </h4>
+
+                        <div className="text-center py-6">
+                          <p className="text-sm text-gray-500 dark:text-gray-400">No comments yet</p>
+                        </div>
+
+                        <div className="space-y-3">
+                          <textarea
+                            placeholder="Write a comment..."
+                            className="w-full p-3 text-sm border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            rows={3}
                           />
-                          <div className="flex-1">
-                            <textarea
-                              placeholder="Write a comment..."
-                              className="w-full p-2 text-sm border-0 bg-transparent text-gray-900 dark:text-white resize-none focus:outline-none placeholder:text-gray-500"
-                              rows={2}
-                            />
-                            <div className="flex justify-end mt-2">
-                              <button className="px-4 py-1.5 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition-colors">
-                                Post Comment
-                              </button>
+                          <div className="flex justify-end">
+                            <button className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors">
+                              Post Comment
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Style 3 - Third Image Dark Theme Layout */}
+                {taskDetailView === "style3" && (
+                  <div className="bg-gradient-to-br from-blue-600 to-blue-800 dark:from-gray-800 dark:to-gray-900 rounded-lg p-6 text-white">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                          <Target className="w-4 h-4 text-white" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-white">New Site Slot-8</h2>
+                          <p className="text-blue-100 text-sm">Task #DKQVtcOg • PENDING</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Content Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      {/* Left Side */}
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-lg font-semibold text-white mb-4">Description</h3>
+                          <p className="text-blue-100">
+                            {selectedTask.description || "Complete site By 12th Evng. come for QC on 13th Mrng"}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Right Side */}
+                      <div className="space-y-6">
+                        <div className="space-y-4">
+                          <div>
+                            <label className="text-sm font-medium text-blue-200">Status</label>
+                            <div className="mt-1">
+                              <span className="px-3 py-1 bg-white/20 text-white text-sm rounded-full">
+                                PENDING
+                              </span>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="text-sm font-medium text-blue-200">Priority</label>
+                            <div className="mt-1">
+                              <span className="px-3 py-1 bg-white/20 text-white text-sm rounded-full">
+                                {selectedTask.priority?.toUpperCase() || "MEDIUM"}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="text-sm font-medium text-blue-200">Assignee</label>
+                            <div className="mt-2 flex items-center gap-3">
+                              <img
+                                src={getEmployeeAvatar(selectedTask.assigned_to)}
+                                alt="assignee"
+                                className="w-8 h-8 rounded-full border-2 border-white/30"
+                              />
+                              <span className="text-white font-medium">
+                                {getEmployeeName(selectedTask.assigned_to) || "A Charan"}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="text-sm font-medium text-blue-200">Due Date</label>
+                            <div className="mt-2 flex items-center gap-2">
+                              <Calendar className="w-4 h-4 text-blue-200" />
+                              <span className="text-white">
+                                {selectedTask.due_date ? new Date(selectedTask.due_date).toLocaleDateString() : "8/13/2025"}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="text-sm font-medium text-blue-200">Project</label>
+                            <div className="mt-1">
+                              <span className="px-3 py-1 bg-blue-700 text-white text-sm rounded-full">
+                                {projects.find(p => p.id === selectedTask.project_id)?.name || "Word Press-IT"}
+                              </span>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </motion.div>
           </div>

@@ -966,7 +966,7 @@ const Dashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
-            className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-4 shadow-lg"
+            className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border-2 border-violet-200/50 dark:border-violet-500/30 rounded-2xl p-4 shadow-lg"
           >
             <div className="flex items-center gap-2 mb-4">
               <div className="p-1.5 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg">

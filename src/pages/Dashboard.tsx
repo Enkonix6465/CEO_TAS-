@@ -1324,7 +1324,188 @@ const Dashboard = () => {
               </div>
             </div>
           </div> 
-        </div> 
+        </div>
+      )}
+
+      {/* Project Summary Modal */}
+      {showProjectSummary && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-full max-w-5xl mx-4">
+            {/* Header */}
+            <div className="flex justify-between items-center border-b p-4">
+              <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200">
+                Project Summary
+              </h2>
+              <button
+                onClick={() => setShowProjectSummary(false)}
+                className="text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Table */}
+            <div className="overflow-x-auto p-6">
+              <table className="w-full text-base text-left border-collapse">
+                <thead className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white text-lg">
+                  <tr>
+                    <th className="p-4 border border-gray-300 dark:border-gray-600">Project Name</th>
+                    <th className="p-4 border border-gray-300 dark:border-gray-600">Team Leader</th>
+                    <th className="p-4 border border-gray-300 dark:border-gray-600">Total Tasks</th>
+                    <th className="p-4 border border-gray-300 dark:border-gray-600">Completed</th>
+                    <th className="p-4 border border-gray-300 dark:border-gray-600">Pending</th>
+                    <th className="p-4 border border-gray-300 dark:border-gray-600">Performance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {projects.map((project) => {
+                    const projectTasks = tasks.filter(
+                      (t) => t.project_id === project.id || t.projectId === project.id
+                    );
+                    const completed = projectTasks.filter(
+                      (t) => t.status === "completed"
+                    ).length;
+                    const pending = projectTasks.filter(
+                      (t) => t.status === "pending"
+                    ).length;
+                    const total = projectTasks.length;
+                    const percent =
+                      total > 0 ? Math.round((completed / total) * 100) : 0;
+                    const performance = getPerformanceLabel(percent);
+
+                    return (
+                      <tr
+                        key={project.id}
+                        className="border-t hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      >
+                        <td
+                          className="p-4 text-blue-600 underline cursor-pointer font-semibold border border-gray-300 dark:border-gray-600"
+                          onClick={() => setDetailedProject(project)}
+                        >
+                          {project.name}
+                        </td>
+                        <td className="p-4 font-medium border border-gray-300 dark:border-gray-600">
+                          {getEmployeeName(project.created_by || project.teamLeader)}
+                        </td>
+
+                        {/* Clickable Cells */}
+                        <td
+                          className="p-4 cursor-pointer text-blue-600 hover:underline border border-gray-300 dark:border-gray-600"
+                          onClick={() =>
+                            navigate("/tasks", {
+                              state: {
+                                projectFilter: project.id,
+                                defaultFilter: "all",
+                              },
+                            })
+                          }
+                        >
+                          {total}
+                        </td>
+                        <td
+                          className="p-4 cursor-pointer text-blue-600 hover:underline border border-gray-300 dark:border-gray-600"
+                          onClick={() =>
+                            navigate("/tasks", {
+                              state: {
+                                projectFilter: project.id,
+                                defaultFilter: "completed",
+                              },
+                            })
+                          }
+                        >
+                          {completed}
+                        </td>
+
+                        <td
+                          className="p-4 cursor-pointer text-blue-600 hover:underline border border-gray-300 dark:border-gray-600"
+                          onClick={() =>
+                            navigate("/tasks", {
+                              state: {
+                                projectFilter: project.id,
+                                defaultFilter: "pending",
+                              },
+                            })
+                          }
+                        >
+                          {pending}
+                        </td>
+
+                        <td className="p-4 border border-gray-300 dark:border-gray-600">
+                          <span
+                            className={`px-3 py-1 rounded-full text-white text-sm ${performance.color}`}
+                          >
+                            {performance.label} ({percent}%)
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              {/* Detailed Project Modal */}
+              {detailedProject && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-6 overflow-auto">
+                  <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] overflow-y-auto p-8 relative">
+                    <button
+                      onClick={() => setDetailedProject(null)}
+                      className="absolute top-4 right-6 text-gray-600 dark:text-gray-300 hover:text-red-500 text-3xl font-bold"
+                      aria-label="Close details modal"
+                    >
+                      &times;
+                    </button>
+
+                    <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
+                      {detailedProject.name}
+                    </h2>
+                    <div className="space-y-3 text-lg text-gray-800 dark:text-gray-200">
+                      <p>
+                        <strong>Description:</strong>{" "}
+                        {detailedProject.description}
+                      </p>
+                      <p>
+                        <strong>Start Date:</strong>{" "}
+                        {detailedProject.startDate}
+                      </p>
+                      <p>
+                        <strong>Deadline:</strong> {detailedProject.deadline}
+                      </p>
+                      <p>
+                        <strong>Created By:</strong>{" "}
+                        {getEmployeeName(detailedProject.created_by)}
+                      </p>
+                      <p>
+                        <strong>Team:</strong>{" "}
+                        {getTeamName(detailedProject.teamId)}
+                      </p>
+                    </div>
+
+                    <div className="mt-6">
+                      <h3 className="font-semibold text-xl mb-3">
+                        Team Members
+                      </h3>
+                      <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-1">
+                        {teams
+                          .find((t) => t.id === detailedProject.teamId)
+                          ?.members?.map((memberId: string) => (
+                            <li
+                              key={memberId}
+                              className="cursor-pointer text-blue-600 hover:underline font-medium"
+                              onClick={() =>
+                                navigate(`/PerformMatrix?empId=${memberId}`)
+                              }
+                            >
+                              {getEmployeeName(memberId)}
+                            </li>
+                          )) || <li>No team members found.</li>}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

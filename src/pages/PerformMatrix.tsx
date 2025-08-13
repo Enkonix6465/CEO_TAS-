@@ -125,9 +125,22 @@ export default function EmployeePerformancePage() {
   }, [user?.uid]);
 
   useEffect(() => {
-    // Check if there's a selected employee ID in localStorage
+    if (employees.length === 0) return;
+
+    // First check URL parameter (takes priority)
+    const empIdFromUrl = searchParams.get('empId');
+    if (empIdFromUrl) {
+      const employeeFromUrl = employees.find(emp => emp.id === empIdFromUrl);
+      if (employeeFromUrl) {
+        setSelectedEmployee(employeeFromUrl);
+        toast.success(`Showing performance for ${employeeFromUrl.name || employeeFromUrl.firstName + ' ' + employeeFromUrl.lastName}`);
+        return;
+      }
+    }
+
+    // Fallback to localStorage
     const storedEmployeeId = localStorage.getItem('selectedEmployeeId');
-    if (storedEmployeeId && employees.length > 0) {
+    if (storedEmployeeId) {
       const employeeFromStorage = employees.find(emp => emp.id === storedEmployeeId);
       if (employeeFromStorage) {
         setSelectedEmployee(employeeFromStorage);
@@ -135,7 +148,7 @@ export default function EmployeePerformancePage() {
         localStorage.removeItem('selectedEmployeeId');
       }
     }
-  }, [employees]);
+  }, [employees, searchParams]);
 
   useEffect(() => {
     if (!selectedEmployee || tasks.length === 0) return;

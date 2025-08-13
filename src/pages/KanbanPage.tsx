@@ -1650,6 +1650,7 @@ const KanbanPage = () => {
               className="relative w-full max-w-4xl bg-white dark:bg-gray-900 rounded-lg shadow-xl max-h-[90vh] overflow-hidden"
             >
               {/* Header */}
+              {/* Header with Style Selector */}
               <div className="bg-white dark:bg-gray-900 p-6 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -1660,12 +1661,47 @@ const KanbanPage = () => {
                       {selectedTask.title || "Slot 7"}
                     </h2>
                   </div>
-                  <button
-                    onClick={() => setShowTaskDetailModal(false)}
-                    className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {/* Style Selector */}
+                    <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+                      <button
+                        onClick={() => setTaskDetailView("style1")}
+                        className={`px-3 py-1 text-xs rounded-md transition-all ${
+                          taskDetailView === "style1"
+                            ? "bg-blue-600 text-white"
+                            : "text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                        }`}
+                      >
+                        Style 1
+                      </button>
+                      <button
+                        onClick={() => setTaskDetailView("style2")}
+                        className={`px-3 py-1 text-xs rounded-md transition-all ${
+                          taskDetailView === "style2"
+                            ? "bg-blue-600 text-white"
+                            : "text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                        }`}
+                      >
+                        Style 2
+                      </button>
+                      <button
+                        onClick={() => setTaskDetailView("style3")}
+                        className={`px-3 py-1 text-xs rounded-md transition-all ${
+                          taskDetailView === "style3"
+                            ? "bg-blue-600 text-white"
+                            : "text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                        }`}
+                      >
+                        Style 3
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => setShowTaskDetailModal(false)}
+                      className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
               </div>
 

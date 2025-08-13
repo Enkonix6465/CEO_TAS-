@@ -599,17 +599,17 @@ const KanbanPage = () => {
     const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== "completed";
 
     const getCardBgColor = () => {
-      if (isOverdue) return 'bg-white border border-red-200 dark:border-red-400/50 dark:bg-black/90 shadow-sm';
+      if (isOverdue) return 'bg-red-50 border-l-4 border-red-500 border border-red-200 dark:border-red-400/50 dark:bg-red-900/20 shadow-sm';
 
       switch (task.status) {
         case 'completed':
-          return 'bg-white border border-gray-200 dark:border-purple-400/50 dark:bg-black/90 shadow-sm';
+          return 'bg-green-50 border-l-4 border-green-500 border border-green-200 dark:border-green-400/50 dark:bg-green-900/20 shadow-sm';
         case 'in_progress':
-          return 'bg-white border border-gray-200 dark:border-blue-400/50 dark:bg-black/90 shadow-sm';
+          return 'bg-blue-50 border-l-4 border-blue-500 border border-blue-200 dark:border-blue-400/50 dark:bg-blue-900/20 shadow-sm';
         case 'review':
-          return 'bg-white border border-gray-200 dark:border-purple-400/50 dark:bg-black/90 shadow-sm';
+          return 'bg-purple-50 border-l-4 border-purple-500 border border-purple-200 dark:border-purple-400/50 dark:bg-purple-900/20 shadow-sm';
         default:
-          return 'bg-white border border-gray-200 dark:border-gray-400/50 dark:bg-black/90 shadow-sm';
+          return 'bg-yellow-50 border-l-4 border-yellow-500 border border-yellow-200 dark:border-yellow-400/50 dark:bg-yellow-900/20 shadow-sm';
       }
     };
 

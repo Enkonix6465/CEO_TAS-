@@ -805,9 +805,9 @@ const KanbanPage = () => {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-gradient-to-br dark:from-slate-900 dark:via-violet-900/10 dark:to-indigo-900/5 overflow-hidden">
+    <div className="flex flex-col h-full bg-gradient-to-br from-violet-50 via-purple-50 to-indigo-50 dark:bg-gradient-to-br dark:from-slate-900 dark:via-violet-900/10 dark:to-indigo-900/5 overflow-hidden">
       {/* Enhanced Header */}
-      <div className="bg-white dark:bg-slate-900/95 border-b border-gray-200 dark:border-violet-500/30 p-4 flex-shrink-0 shadow-sm">
+      <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border-b border-violet-200/50 dark:border-violet-500/20 p-4 flex-shrink-0 shadow-lg">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
@@ -1016,7 +1016,7 @@ const KanbanPage = () => {
       </div>
 
       {/* Kanban Board */}
-      <div className="flex-1 min-h-0 p-6 overflow-hidden bg-gray-50 dark:bg-slate-900">
+      <div className="flex-1 min-h-0 p-6 overflow-hidden relative">
         {viewMode === "board" && (
           <div className="flex gap-6 h-full min-w-max overflow-x-auto w-full pb-4">
           {columns.map((column) => (

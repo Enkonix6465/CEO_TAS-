@@ -183,6 +183,12 @@ const ViewTicket = () => {
             <span className="px-3 py-1 bg-violet-100/80 dark:bg-violet-600/30 text-violet-700 dark:text-violet-300 rounded-full font-medium">
               {tickets.length} tickets assigned
             </span>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-3 py-1 bg-blue-100/80 dark:bg-blue-600/30 text-blue-700 dark:text-blue-300 rounded-full font-medium hover:bg-blue-200/80 dark:hover:bg-blue-600/50 transition-colors text-xs"
+            >
+              🔄 Refresh
+            </button>
           </div>
         </div>
 

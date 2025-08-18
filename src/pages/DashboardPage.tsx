@@ -374,7 +374,34 @@ const DashboardPage = () => {
   );
 
   const TaskCard = ({ task }) => {
-    const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== "completed";
+    const isOverdue = (() => {
+      if (!task || task.status === 'completed' || task.status === 'cancelled' || task.progress_status === 'completed') {
+        return false;
+      }
+      const dueDate = task.due_date || task.dueDate;
+      if (!dueDate) return false;
+
+      try {
+        let due;
+        if (typeof dueDate === 'string') {
+          due = new Date(dueDate);
+        } else if (dueDate.seconds) {
+          due = new Date(dueDate.seconds * 1000);
+        } else if (dueDate.toDate) {
+          due = dueDate.toDate();
+        } else {
+          due = new Date(dueDate);
+        }
+
+        if (isNaN(due.getTime())) return false;
+
+        const now = new Date();
+        now.setHours(23, 59, 59, 999);
+        return due < now;
+      } catch (error) {
+        return false;
+      }
+    })();
     
     return (
       <motion.div

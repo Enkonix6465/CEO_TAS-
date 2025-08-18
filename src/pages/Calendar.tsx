@@ -633,8 +633,33 @@ const Calendar = () => {
                     {getAllFilteredEvents()
                       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                       .map((event, index) => {
-                        const isCompleted = event.status === 'completed';
-                        const isOverdue = new Date(event.date) < new Date() && !isCompleted;
+                        const isCompleted = event.status === 'completed' || event.progress_status === 'completed';
+                        const isOverdue = (() => {
+                          if (!event || isCompleted || event.status === 'cancelled') return false;
+                          const eventDate = event.date;
+                          if (!eventDate) return false;
+
+                          try {
+                            let due;
+                            if (typeof eventDate === 'string') {
+                              due = new Date(eventDate);
+                            } else if (eventDate.seconds) {
+                              due = new Date(eventDate.seconds * 1000);
+                            } else if (eventDate.toDate) {
+                              due = eventDate.toDate();
+                            } else {
+                              due = new Date(eventDate);
+                            }
+
+                            if (isNaN(due.getTime())) return false;
+
+                            const now = new Date();
+                            now.setHours(23, 59, 59, 999);
+                            return due < now;
+                          } catch (error) {
+                            return false;
+                          }
+                        })();
                         const daysTillCompletion = Math.ceil((new Date(event.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                         const completionProgress = isCompleted ? 100 : (daysTillCompletion < 0 ? 0 : Math.max(0, 100 - (daysTillCompletion * 10)));
 

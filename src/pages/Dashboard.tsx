@@ -1446,9 +1446,24 @@ const Dashboard = () => {
                     const performance = getPerformanceLabel(percent);
 
                     return (
-                      <tr
+                      <motion.tr
                         key={project.id}
                         className="border-t hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        initial={{ opacity: 0, x: -30, scale: 0.95 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                        viewport={{ once: true, margin: "-50px" }}
+                        transition={{
+                          delay: index * 0.1,
+                          duration: 0.6,
+                          type: "spring",
+                          stiffness: 100
+                        }}
+                        whileHover={{
+                          scale: 1.01,
+                          backgroundColor: "rgba(139, 92, 246, 0.05)",
+                          transition: { duration: 0.2 }
+                        }}
                       >
                         <td
                           className="p-4 text-blue-600 underline cursor-pointer font-semibold border border-gray-300 dark:border-gray-600"
@@ -1525,7 +1540,7 @@ const Dashboard = () => {
                             {performance.label} ({percent}%)
                           </span>
                         </td>
-                      </tr>
+                      </motion.tr>
                     );
                   })}
                 </tbody>

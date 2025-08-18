@@ -414,7 +414,10 @@ function Projects() {
               </div>
               <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">No Projects Found</h3>
               <p className="text-sm text-violet-600/70 dark:text-violet-300/70 mb-4">
-                {searchTerm || filterStatus !== 'all' ? 'Try adjusting your search or filter' : 'Create your first project to get started'}
+                {searchTerm || filterStatus !== 'all'
+                  ? `No projects found ${searchTerm ? `matching "${searchTerm}"` : ''} ${filterStatus !== 'all' ? `with status "${filterStatus}"` : ''}. Try adjusting your filters.`
+                  : 'Create your first project to get started'
+                }
               </p>
               {!searchTerm && filterStatus === 'all' && (
                 <button

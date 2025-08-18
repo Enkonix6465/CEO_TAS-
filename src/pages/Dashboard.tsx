@@ -94,6 +94,8 @@ const Dashboard = () => {
   const [employees, setEmployees] = useState<any[]>([]);
   const [showProjectSummary, setShowProjectSummary] = useState(false);
   const [detailedProject, setDetailedProject] = useState<any>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
+  const [shouldScroll, setShouldScroll] = useState(false);
 
   // Function to get team name by ID (moved inside component to access teams state)
   const getTeamName = (teamId: string) => {

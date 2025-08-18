@@ -1413,7 +1413,7 @@ const Dashboard = () => {
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto p-6">
+            <div ref={tableRef} className="overflow-x-auto p-6">
               <table className="w-full text-base text-left border-collapse">
                 <thead className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white text-lg">
                   <tr>

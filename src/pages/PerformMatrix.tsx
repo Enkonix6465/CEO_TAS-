@@ -833,7 +833,7 @@ export default function EmployeePerformancePage() {
                   </div>
                   <div>
                     <div className="flex items-center justify-between">
-                      <h2 className="text-2xl font-bold text-gray-800">
+                      <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
                         {selectedEmployee.name}
                       </h2>
                       <button
@@ -1135,52 +1135,52 @@ export default function EmployeePerformancePage() {
                   Detailed Task Information
                 </h3>
                 <div className="overflow-x-auto max-h-[400px] border rounded shadow-inner">
-                  <table className="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead className="bg-gray-100 sticky top-0 z-10">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+                    <thead className="bg-gray-100 dark:bg-gray-800 sticky top-0 z-10">
                       <tr>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600 dark:text-gray-300">
                           Ticket ID
                         </th>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600 dark:text-gray-300">
                           Title
                         </th>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600 dark:text-gray-300">
                           Description
                         </th>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600 dark:text-gray-300">
                           Status
                         </th>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600 dark:text-gray-300">
                           Due Date
                         </th>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600 dark:text-gray-300">
                           Created At
                         </th>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600 dark:text-gray-300">
                           Updated At
                         </th>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600 dark:text-gray-300">
                           Reassigned
                         </th>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600 dark:text-gray-300">
                           Completion Status
                         </th>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600 dark:text-gray-300">
                           Created By
                         </th>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600 dark:text-gray-300">
                           Review
                         </th>
-                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600 dark:text-gray-300">
                           Productivity
                         </th>
 
-                        <th className="px-4 py-2 text-left font-semibold text-gray-600">
+                        <th className="px-4 py-2 text-left font-semibold text-gray-600 dark:text-gray-300">
                           Comments
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 bg-white">
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700 bg-white dark:bg-gray-800">
                       {tasks
                         .filter((t) => t.assigned_to === selectedEmployee.id)
                         .filter((t) => {
@@ -1201,15 +1201,15 @@ export default function EmployeePerformancePage() {
                           return true;
                         })
                         .map((task) => (
-                          <tr key={task.id} className="hover:bg-gray-50">
-                            <td className="px-4 py-2 font-medium text-gray-800">
+                          <tr key={task.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td className="px-4 py-2 font-medium text-gray-800 dark:text-gray-200">
                               {task.task_id}
                             </td>
 
-                            <td className="px-4 py-2 text-gray-700">
+                            <td className="px-4 py-2 text-gray-700 dark:text-gray-300">
                               {task.title}
                             </td>
-                            <td className="px-4 py-2 text-gray-600">
+                            <td className="px-4 py-2 text-gray-600 dark:text-gray-400">
                               {task.description || "-"}
                             </td>
                             <td className="px-4 py-2">
@@ -1222,18 +1222,18 @@ export default function EmployeePerformancePage() {
                                 {task.progress_status}
                               </span>
                             </td>
-                            <td className="px-4 py-2 text-gray-600">
+                            <td className="px-4 py-2 text-gray-600 dark:text-gray-400">
                               {task.due_date
                                 ? formatServerTime(new Date(task.due_date))
                                 : "-"}
                             </td>
-                            <td className="px-4 py-2 text-gray-500">
+                            <td className="px-4 py-2 text-gray-500 dark:text-gray-500">
                               {task.created_at
                                 ? formatServerTime(task.created_at.toDate())
                                 : "-"}
                             </td>
 
-                            <td className="px-4 py-2 text-gray-500">
+                            <td className="px-4 py-2 text-gray-500 dark:text-gray-500">
                               {task.progress_updated_at
                                 ? formatServerTime(
                                   task.progress_updated_at.toDate()
@@ -1241,7 +1241,7 @@ export default function EmployeePerformancePage() {
                                 : "-"}
                             </td>
 
-                            <td className="px-4 py-2 text-center text-gray-600">
+                            <td className="px-4 py-2 text-center text-gray-600 dark:text-gray-400">
                               {task.reassign_history?.length || 0}
                             </td>
                             <td className="p-2 border">
@@ -1283,7 +1283,7 @@ export default function EmployeePerformancePage() {
                               })()}
                             </td>
 
-                            <td className="px-4 py-2 text-gray-700 text-sm">
+                            <td className="px-4 py-2 text-gray-700 dark:text-gray-300 text-sm">
                               {(() => {
                                 const creator = employees.find(
                                   (emp) =>
@@ -1428,7 +1428,7 @@ export default function EmployeePerformancePage() {
                                     <span className={`${colorClass}`}>
                                       {score}
                                     </span>
-                                    <div className="absolute z-50 hidden group-hover:block bg-white border border-gray-200 shadow-lg rounded-lg px-4 py-2 text-xs max-w-xs w-fit min-w-[200px] whitespace-pre-wrap left-1/2 -translate-x-1/2 top-full mt-2 transition-all duration-200">
+                                    <div className="absolute z-50 hidden group-hover:block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 shadow-lg rounded-lg px-4 py-2 text-xs max-w-xs w-fit min-w-[200px] whitespace-pre-wrap left-1/2 -translate-x-1/2 top-full mt-2 transition-all duration-200 text-gray-800 dark:text-gray-200">
                                       {explanation}
                                     </div>
                                   </div>
@@ -1436,19 +1436,19 @@ export default function EmployeePerformancePage() {
                               })()}
                             </td>
 
-                            <td className="px-4 py-2 text-gray-500">
+                            <td className="px-4 py-2 text-gray-500 dark:text-gray-500">
                               {task.comments?.length > 0 ? (
                                 <div className="relative group cursor-pointer">
-                                  <span className="underline text-blue-500">
+                                  <span className="underline text-blue-500 dark:text-blue-400">
                                     {task.comments.length} comment(s)
                                   </span>
-                                  <div className="absolute z-20 hidden group-hover:block bg-white border rounded shadow p-2 text-xs w-64 mt-1">
+                                  <div className="absolute z-20 hidden group-hover:block bg-white dark:bg-gray-800 border dark:border-gray-600 rounded shadow p-2 text-xs w-64 mt-1">
                                     {task.comments.map((c, i) => (
                                       <div key={i} className="mb-1">
-                                        <p className="text-gray-700">
+                                        <p className="text-gray-700 dark:text-gray-300">
                                           • {c.text}
                                         </p>
-                                        <p className="text-gray-400 text-[10px]">
+                                        <p className="text-gray-400 dark:text-gray-500 text-[10px]">
                                           {c.timestamp
                                             ? formatServerTime(
                                               new Date(c.timestamp)

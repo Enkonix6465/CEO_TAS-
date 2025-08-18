@@ -1434,6 +1434,9 @@ const Dashboard = () => {
                     const completed = projectTasks.filter(
                       (t) => t.status === "completed"
                     ).length;
+                    const inProgress = projectTasks.filter(
+                      (t) => t.status === "in_progress" || t.status === "in-progress"
+                    ).length;
                     const pending = projectTasks.filter(
                       (t) => t.status === "pending"
                     ).length;

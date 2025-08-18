@@ -253,9 +253,34 @@ const DashboardPage = () => {
     totalTasks: tasks.length,
     completedTasks: tasks.filter(t => t.status === "completed").length,
     inProgressTasks: tasks.filter(t => t.status === "in_progress").length,
-    overdueTasks: tasks.filter(t => 
-      t.due_date && new Date(t.due_date) < new Date() && t.status !== "completed"
-    ).length,
+    overdueTasks: tasks.filter(t => {
+      if (!t || t.status === 'completed' || t.status === 'cancelled' || t.progress_status === 'completed') {
+        return false;
+      }
+      const dueDate = t.due_date || t.dueDate;
+      if (!dueDate) return false;
+
+      try {
+        let due;
+        if (typeof dueDate === 'string') {
+          due = new Date(dueDate);
+        } else if (dueDate.seconds) {
+          due = new Date(dueDate.seconds * 1000);
+        } else if (dueDate.toDate) {
+          due = dueDate.toDate();
+        } else {
+          due = new Date(dueDate);
+        }
+
+        if (isNaN(due.getTime())) return false;
+
+        const now = new Date();
+        now.setHours(23, 59, 59, 999);
+        return due < now;
+      } catch (error) {
+        return false;
+      }
+    }).length,
     teamEfficiency: Math.round(
       (tasks.filter(t => t.status === "completed").length / Math.max(tasks.length, 1)) * 100
     ),

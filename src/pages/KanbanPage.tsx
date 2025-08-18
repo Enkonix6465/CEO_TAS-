@@ -789,19 +789,45 @@ const KanbanPage = () => {
 
         {/* Footer */}
         <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-300">
-          <div className="flex items-center gap-2">
-            <img
-              src={getEmployeeAvatar(task.assigned_to)}
-              alt="avatar"
-              className="w-6 h-6 rounded-full border-2 border-white dark:border-gray-600 shadow-lg ring-2 ring-white/50 dark:ring-gray-400/30"
-            />
-            <span
-              className="font-medium hover:text-blue-600 dark:hover:text-purple-400 cursor-pointer transition-colors duration-200"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/PerformMatrix?empId=${task.assigned_to}`);
-              }}
-            >{getEmployeeName(task.assigned_to)}</span>
+          <div className="flex flex-col gap-2">
+            {/* Assignee */}
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md text-[10px] font-medium border border-blue-200 dark:border-blue-700/50">
+                Assignee
+              </span>
+              <img
+                src={getEmployeeAvatar(task.assigned_to)}
+                alt="avatar"
+                className="w-5 h-5 rounded-full border-2 border-white dark:border-gray-600 shadow-lg ring-2 ring-white/50 dark:ring-gray-400/30"
+              />
+              <span
+                className="font-medium hover:text-blue-600 dark:hover:text-purple-400 cursor-pointer transition-colors duration-200 text-[11px]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/PerformMatrix?empId=${task.assigned_to}`);
+                }}
+              >{getEmployeeName(task.assigned_to)}</span>
+            </div>
+            {/* Reporter */}
+            {task.created_by && (
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md text-[10px] font-medium border border-green-200 dark:border-green-700/50">
+                  Reporter
+                </span>
+                <img
+                  src={getEmployeeAvatar(task.created_by)}
+                  alt="avatar"
+                  className="w-5 h-5 rounded-full border-2 border-white dark:border-gray-600 shadow-lg ring-2 ring-white/50 dark:ring-gray-400/30"
+                />
+                <span
+                  className="font-medium hover:text-green-600 dark:hover:text-green-400 cursor-pointer transition-colors duration-200 text-[11px]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/PerformMatrix?empId=${task.created_by}`);
+                  }}
+                >{getEmployeeName(task.created_by)}</span>
+              </div>
+            )}
           </div>
           
           <div className="flex items-center gap-3">

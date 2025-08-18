@@ -369,6 +369,39 @@ function Projects() {
             )}
           </div>
         </div>
+
+        {/* Filter Summary */}
+        {(searchTerm || filterStatus !== 'all') && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mt-3 p-3 bg-indigo-50/80 dark:bg-indigo-500/10 border border-indigo-200/60 dark:border-indigo-500/30 rounded-lg backdrop-blur-sm"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm text-indigo-700 dark:text-indigo-300">
+                <Filter className="w-4 h-4" />
+                <span>
+                  Showing {filteredProjects.length} of {projects.length} projects
+                  {searchTerm && ` matching "${searchTerm}"`}
+                  {filterStatus !== 'all' && ` with status "${filterStatus}"`}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {searchTerm && (
+                  <span className="px-2 py-1 bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 rounded text-xs">
+                    Search: "{searchTerm}"
+                  </span>
+                )}
+                {filterStatus !== 'all' && (
+                  <span className="px-2 py-1 bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 rounded text-xs capitalize">
+                    {filterStatus === 'on-hold' ? 'On Hold' : filterStatus}
+                  </span>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
 
       {/* Content */}

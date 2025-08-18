@@ -1353,15 +1353,31 @@ const KanbanPage = () => {
                       }}
                       className="relative flex items-start gap-6"
                     >
-                      <div className={`relative z-10 w-4 h-4 rounded-full border-4 border-white shadow-lg ${
-                        task.status === "completed" ? "bg-green-500" :
-                        task.status === "in_progress" ? "bg-blue-500" :
-                        "bg-gray-400"
-                      }`}>
+                      <motion.div
+                        className={`relative z-10 w-4 h-4 rounded-full border-4 border-white shadow-lg ${
+                          task.status === "completed" ? "bg-green-500" :
+                          task.status === "in_progress" ? "bg-blue-500" :
+                          "bg-gray-400"
+                        }`}
+                        initial={{ scale: 0, rotate: -180 }}
+                        whileInView={{ scale: 1, rotate: 0 }}
+                        viewport={{ once: true }}
+                        transition={{
+                          delay: index * 0.15 + 0.3,
+                          duration: 0.6,
+                          type: "spring",
+                          stiffness: 200
+                        }}
+                        whileHover={{ scale: 1.3 }}
+                      >
                         {task.status === "in_progress" && (
-                          <div className="absolute inset-0 rounded-full animate-ping bg-blue-400" />
+                          <motion.div
+                            className="absolute inset-0 rounded-full bg-blue-400"
+                            animate={{ scale: [1, 1.5, 1], opacity: [0.7, 0, 0.7] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          />
                         )}
-                      </div>
+                      </motion.div>
 
                       <motion.div
                         whileHover={{ y: -2, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}

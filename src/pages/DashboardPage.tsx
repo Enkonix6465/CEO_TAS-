@@ -406,19 +406,38 @@ const DashboardPage = () => {
           </div>
         )}
 
-        <div className="flex items-center justify-between text-xs text-gray-600">
+        <div className="flex flex-col gap-2 text-xs text-gray-600 dark:text-gray-400">
+          {/* Assignee */}
           <div className="flex items-center gap-2">
+            <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md text-[10px] font-medium border border-blue-200 dark:border-blue-700/50">
+              Assignee
+            </span>
             <img
               src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${task.assigned_to}`}
               alt="avatar"
-              className="w-5 h-5 rounded-full"
+              className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600"
             />
-            <span>{employees.find(e => e.id === task.assigned_to)?.name || "Unassigned"}</span>
+            <span className="text-[11px] font-medium">{employees.find(e => e.id === task.assigned_to)?.name || "Unassigned"}</span>
           </div>
+          {/* Reporter */}
+          {task.created_by && (
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md text-[10px] font-medium border border-green-200 dark:border-green-700/50">
+                Reporter
+              </span>
+              <img
+                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${task.created_by}`}
+                alt="avatar"
+                className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600"
+              />
+              <span className="text-[11px] font-medium">{employees.find(e => e.id === task.created_by)?.name || "Unknown"}</span>
+            </div>
+          )}
+          {/* Due Date */}
           {task.due_date && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 mt-2">
               <Calendar className="w-3 h-3" />
-              <span>{new Date(task.due_date).toLocaleDateString()}</span>
+              <span className="text-[11px]">{new Date(task.due_date).toLocaleDateString()}</span>
             </div>
           )}
         </div>

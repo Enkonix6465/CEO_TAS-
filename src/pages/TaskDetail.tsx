@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc, updateDoc, collection, onSnapshot, serverTimestamp, arrayUnion } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
@@ -16,6 +16,8 @@ const TaskDetail = () => {
   const [commentLoading, setCommentLoading] = useState(false);
   const [projects, setProjects] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const commentsEndRef = useRef(null);
+  const commentsContainerRef = useRef(null);
 
   // Status title mapping
   const statusTitles = {
@@ -148,10 +150,19 @@ const TaskDetail = () => {
     return `https://api.dicebear.com/7.x/avataaars/svg?seed=${empId}`;
   };
 
+  // Function to scroll to bottom of comments
+  const scrollToBottomOfComments = () => {
+    setTimeout(() => {
+      if (commentsEndRef.current) {
+        commentsEndRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
+  };
+
   // Function to add a comment to a task
   const handleAddComment = async () => {
     if (!newComment.trim() || !task) return;
-    
+
     setCommentLoading(true);
     try {
       const comment = {
@@ -175,6 +186,9 @@ const TaskDetail = () => {
 
       setNewComment("");
       toast.success("Comment added successfully!");
+
+      // Auto-scroll to the new comment
+      scrollToBottomOfComments();
     } catch (error) {
       console.error("Error adding comment:", error);
       toast.error("Failed to add comment");
@@ -248,7 +262,7 @@ const TaskDetail = () => {
             </div>
           </div>
 
-          <div className="p-6 overflow-y-auto">
+          <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)] custom-scrollbar">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Left Column */}
               <div className="space-y-6">
@@ -420,7 +434,7 @@ const TaskDetail = () => {
                   </h3>
                   
                   <div className="p-4">
-                    <div className="space-y-3 max-h-64 overflow-y-auto">
+                    <div ref={commentsContainerRef} className="space-y-3 max-h-64 overflow-y-auto custom-scrollbar scroll-smooth">
                       {task.comments?.length > 0 ? (
                         task.comments.map((comment, index) => (
                           <div key={index} className="flex gap-3 p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -444,6 +458,7 @@ const TaskDetail = () => {
                           <p className="text-sm text-gray-500 dark:text-gray-400">No comments yet</p>
                         </div>
                       )}
+                      <div ref={commentsEndRef} />
                     </div>
                     
                     <div className="mt-4 p-3 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">

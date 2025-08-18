@@ -154,15 +154,50 @@ const Dashboard = () => {
   const [commentLoading, setCommentLoading] = useState(false);
   const tableRef = React.useRef(null);
   
-  // Function to check if a task is overdue
-  const isOverdue = (task: any) => {
-    if (task.status === "completed") return false;
-    const today = new Date();
-    const dueDate = typeof task.due_date === "string" 
-      ? new Date(task.due_date) 
-      : task.due_date?.toDate?.();
-    return dueDate && dueDate < today;
-  };
+  // Import overdue utility functions
+  const { isTaskOverdue, getOverdueTasks, getOverdueCount } = (() => {
+    // Inline utility functions to maintain consistency
+    const isTaskOverdue = (task: any): boolean => {
+      if (!task || task.status === 'completed' || task.status === 'cancelled' || task.progress_status === 'completed') {
+        return false;
+      }
+
+      const dueDate = task.due_date || task.dueDate;
+      if (!dueDate) return false;
+
+      try {
+        let due: Date;
+        if (typeof dueDate === 'string') {
+          due = new Date(dueDate);
+        } else if (dueDate.seconds) {
+          due = new Date(dueDate.seconds * 1000);
+        } else if (dueDate.toDate) {
+          due = dueDate.toDate();
+        } else {
+          due = new Date(dueDate);
+        }
+
+        if (isNaN(due.getTime())) return false;
+
+        const now = new Date();
+        now.setHours(23, 59, 59, 999);
+        return due < now;
+      } catch (error) {
+        console.warn('Error parsing due date:', dueDate, error);
+        return false;
+      }
+    };
+
+    const getOverdueTasks = (tasks: any[]): any[] => {
+      return Array.isArray(tasks) ? tasks.filter(isTaskOverdue) : [];
+    };
+
+    const getOverdueCount = (tasks: any[]): number => {
+      return getOverdueTasks(tasks).length;
+    };
+
+    return { isTaskOverdue, getOverdueTasks, getOverdueCount };
+  })();
   
   // Function to handle task click
   const handleTaskClick = (task: any) => {

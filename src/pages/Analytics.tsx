@@ -457,8 +457,32 @@ const Analytics = () => {
       const empTasks = tasks.filter((t) => t.assigned_to === employee.id);
       const completedTasks = empTasks.filter((t) => t.status === "completed");
       const overdueTasks = empTasks.filter((t) => {
-        if (!t.due_date || t.status === "completed") return false;
-        return new Date(t.due_date) < new Date();
+        if (!t || t.status === 'completed' || t.status === 'cancelled' || t.progress_status === 'completed') {
+          return false;
+        }
+        const dueDate = t.due_date || t.dueDate;
+        if (!dueDate) return false;
+
+        try {
+          let due;
+          if (typeof dueDate === 'string') {
+            due = new Date(dueDate);
+          } else if (dueDate.seconds) {
+            due = new Date(dueDate.seconds * 1000);
+          } else if (dueDate.toDate) {
+            due = dueDate.toDate();
+          } else {
+            due = new Date(dueDate);
+          }
+
+          if (isNaN(due.getTime())) return false;
+
+          const now = new Date();
+          now.setHours(23, 59, 59, 999);
+          return due < now;
+        } catch (error) {
+          return false;
+        }
       });
 
       const lateTasks = completedTasks.filter((t) => {

@@ -201,6 +201,18 @@ function Layout() {
                     <Calendar className="w-4 h-4" />
                     <span>Calendar</span>
                   </Link>
+                  <Link
+                    to="/AllTasks"
+                    onClick={closeSidebar}
+                    className={`flex items-center gap-3 px-4 py-2.5 text-sm rounded-xl transition-all duration-200 hover:shadow-md ${
+                      isActive("/AllTasks")
+                        ? "bg-gradient-to-r from-violet-100 to-purple-100 dark:bg-gradient-to-r dark:from-violet-800/40 dark:to-purple-800/40 text-violet-700 dark:text-violet-200 font-semibold shadow-lg border border-violet-200 dark:border-violet-600/40"
+                        : "text-slate-600 dark:text-slate-300 hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 dark:hover:bg-gradient-to-r dark:hover:from-violet-800/20 dark:hover:to-purple-800/20 hover:text-violet-700 dark:hover:text-violet-200"
+                    }`}
+                  >
+                    <Target className="w-4 h-4" />
+                    <span>All Tasks</span>
+                  </Link>
                 </div>
               )}
             </div>

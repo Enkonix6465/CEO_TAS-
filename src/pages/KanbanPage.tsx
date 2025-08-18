@@ -476,16 +476,6 @@ const KanbanPage = () => {
       count: filteredTasks.filter((t: any) => t.status === "in_progress").length
     },
     {
-      id: "review",
-      title: "Review",
-      icon: Eye,
-      color: "purple",
-      glassEffect: "bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl",
-      borderColor: "border-violet-200/50 dark:border-purple-500/30",
-      iconColor: "text-purple-600 dark:text-purple-400",
-      count: filteredTasks.filter((t: any) => t.status === "review").length
-    },
-    {
       id: "completed",
       title: "Done",
       icon: CheckCircle,

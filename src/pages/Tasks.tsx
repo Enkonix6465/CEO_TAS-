@@ -255,27 +255,38 @@ function Tasks() {
     }
   };
 
-  // Function to check if a task is overdue
+  // Function to check if a task is overdue (consistent with other pages)
   const isTaskOverdue = (task) => {
-    if (!task || task.status === 'completed' || task.status === 'cancelled') return false;
+    if (!task || task.status === 'completed' || task.status === 'cancelled' || task.progress_status === 'completed') return false;
 
     // Handle different date field names and formats
     const dueDate = task.dueDate || task.due_date;
     if (!dueDate) return false;
 
-    let due;
-    if (typeof dueDate === 'string') {
-      due = new Date(dueDate);
-    } else if (dueDate.seconds) {
-      // Firestore timestamp
-      due = new Date(dueDate.seconds * 1000);
-    } else {
-      due = new Date(dueDate);
-    }
+    try {
+      let due;
+      if (typeof dueDate === 'string') {
+        due = new Date(dueDate);
+      } else if (dueDate.seconds) {
+        // Firestore timestamp
+        due = new Date(dueDate.seconds * 1000);
+      } else if (dueDate.toDate) {
+        // Firestore timestamp with toDate method
+        due = dueDate.toDate();
+      } else {
+        due = new Date(dueDate);
+      }
 
-    const today = new Date();
-    today.setHours(23, 59, 59, 999); // End of today
-    return due < today;
+      // Invalid date check
+      if (isNaN(due.getTime())) return false;
+
+      const today = new Date();
+      today.setHours(23, 59, 59, 999); // End of today
+      return due < today;
+    } catch (error) {
+      console.warn('Error parsing due date:', dueDate, error);
+      return false;
+    }
   };
 
   const filteredTasks = tasks.filter((task) => {

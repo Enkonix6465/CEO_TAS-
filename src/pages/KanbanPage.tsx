@@ -106,8 +106,8 @@ const KanbanPage = () => {
         id: "mock-task-3",
         title: "User Experience Testing",
         description: "Conduct comprehensive user testing for the new dashboard interface",
-        status: "review",
-        progress_status: "review",
+        status: "in_progress",
+        progress_status: "in_progress",
         priority: "medium",
         assigned_to: "mock-user-3",
         due_date: "2024-02-18",
@@ -437,14 +437,12 @@ const KanbanPage = () => {
     const lightTheme = {
       pending: { bg: 'bg-white', border: 'border-gray-200', icon: 'text-amber-600' },
       in_progress: { bg: 'bg-white', border: 'border-gray-200', icon: 'text-blue-600' },
-      review: { bg: 'bg-white', border: 'border-gray-200', icon: 'text-purple-600' },
       completed: { bg: 'bg-white', border: 'border-gray-200', icon: 'text-emerald-600' }
     };
 
     const darkTheme = {
       pending: { bg: 'from-amber-900/20 to-orange-900/20', border: 'border-amber-500/30', icon: 'text-amber-400' },
       in_progress: { bg: 'from-blue-900/20 to-cyan-900/20', border: 'border-blue-500/30', icon: 'text-blue-400' },
-      review: { bg: 'from-purple-900/20 to-indigo-900/20', border: 'border-purple-500/30', icon: 'text-purple-400' },
       completed: { bg: 'from-emerald-900/20 to-green-900/20', border: 'border-emerald-500/30', icon: 'text-emerald-400' }
     };
 
@@ -628,8 +626,6 @@ const KanbanPage = () => {
           return 'bg-green-50 border-l-4 border-green-500 border border-green-200 dark:bg-slate-800/80 dark:border-green-400/70 dark:border-l-green-400 shadow-sm';
         case 'in_progress':
           return 'bg-blue-50 border-l-4 border-blue-500 border border-blue-200 dark:bg-slate-800/80 dark:border-blue-400/70 dark:border-l-blue-400 shadow-sm';
-        case 'review':
-          return 'bg-purple-50 border-l-4 border-purple-500 border border-purple-200 dark:bg-slate-800/80 dark:border-purple-400/70 dark:border-l-purple-400 shadow-sm';
         default:
           return 'bg-yellow-50 border-l-4 border-yellow-500 border border-yellow-200 dark:bg-slate-800/80 dark:border-yellow-400/70 dark:border-l-yellow-400 shadow-sm';
       }
@@ -732,7 +728,6 @@ const KanbanPage = () => {
             className={`h-2.5 rounded-full ${
                   task.status === 'completed' ? 'bg-gradient-to-r from-blue-500 via-gray-500 to-slate-500 dark:from-purple-400 dark:via-purple-500 dark:to-purple-600' :
                   task.status === 'in_progress' ? 'bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 dark:from-purple-400 dark:via-purple-500 dark:to-purple-600' :
-                  task.status === 'review' ? 'bg-gradient-to-r from-gray-500 via-slate-500 to-blue-500 dark:from-purple-400 dark:via-purple-500 dark:to-purple-600' :
                   'bg-gradient-to-r from-gray-500 via-slate-500 to-blue-500 dark:from-purple-400 dark:via-purple-500 dark:to-purple-600'
                 }`}
                 initial={{ width: 0 }}
@@ -1238,7 +1233,6 @@ const KanbanPage = () => {
                           <span className={`px-3 py-1 text-xs rounded-full font-medium ${
                             task.status === "completed" ? "bg-green-100 text-green-700" :
                             task.status === "in_progress" ? "bg-blue-100 text-blue-700" :
-                            task.status === "review" ? "bg-yellow-100 text-yellow-700" :
                             "bg-gray-100 text-gray-700"
                           }`}>
                             {task.status?.replace('_', ' ').toUpperCase()}
@@ -1314,7 +1308,6 @@ const KanbanPage = () => {
                       <div className={`relative z-10 w-4 h-4 rounded-full border-4 border-white shadow-lg ${
                         task.status === "completed" ? "bg-green-500" :
                         task.status === "in_progress" ? "bg-blue-500" :
-                        task.status === "review" ? "bg-yellow-500" :
                         "bg-gray-400"
                       }`}>
                         {task.status === "in_progress" && (
@@ -1464,7 +1457,6 @@ const KanbanPage = () => {
                           <span className={`px-3 py-1 text-xs rounded-full font-medium ${
                             task.status === "completed" ? "bg-green-100 text-green-700 border border-green-200" :
                             task.status === "in_progress" ? "bg-blue-100 text-blue-700 border border-blue-200" :
-                            task.status === "review" ? "bg-yellow-100 text-yellow-700 border border-yellow-200" :
                             "bg-gray-100 text-gray-700 border border-gray-200"
                           }`}>
                             {task.status?.replace('_', ' ').toUpperCase()}

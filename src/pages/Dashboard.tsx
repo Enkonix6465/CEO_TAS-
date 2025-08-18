@@ -808,6 +808,9 @@ const Dashboard = () => {
                   case 'Pending':
                     handleCardClick('pending');
                     break;
+                  case 'In Progress':
+                    handleCardClick('in-progress');
+                    break;
                   case 'Total Tasks':
                     handleCardClick('all');
                     break;

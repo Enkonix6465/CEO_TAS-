@@ -1341,9 +1341,16 @@ const KanbanPage = () => {
                     .map((task, index) => (
                     <motion.div
                       key={task.id}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
+                      initial={{ opacity: 0, x: 60, scale: 0.8 }}
+                      animate={{ opacity: 1, x: 0, scale: 1 }}
+                      whileInView={{ opacity: 1, x: 0, scale: 1 }}
+                      viewport={{ once: true, margin: "-80px" }}
+                      transition={{
+                        delay: index * 0.15,
+                        duration: 0.8,
+                        type: "spring",
+                        stiffness: 80
+                      }}
                       className="relative flex items-start gap-6"
                     >
                       <div className={`relative z-10 w-4 h-4 rounded-full border-4 border-white shadow-lg ${

@@ -1490,6 +1490,19 @@ const Dashboard = () => {
                         >
                           {completed}
                         </td>
+                        <td
+                          className="p-4 cursor-pointer text-blue-600 hover:underline border border-gray-300 dark:border-gray-600"
+                          onClick={() =>
+                            navigate("/tasks", {
+                              state: {
+                                projectFilter: project.id,
+                                defaultFilter: "in_progress",
+                              },
+                            })
+                          }
+                        >
+                          {inProgress}
+                        </td>
 
                         <td
                           className="p-4 cursor-pointer text-blue-600 hover:underline border border-gray-300 dark:border-gray-600"

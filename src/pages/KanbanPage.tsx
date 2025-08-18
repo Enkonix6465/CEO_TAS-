@@ -616,7 +616,35 @@ const KanbanPage = () => {
   };
 
   const TaskCard = ({ task }: { task: any }) => {
-    const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== "completed";
+    // Consistent overdue check
+    const isOverdue = (() => {
+      if (!task || task.status === 'completed' || task.status === 'cancelled' || task.progress_status === 'completed') {
+        return false;
+      }
+      const dueDate = task.due_date || task.dueDate;
+      if (!dueDate) return false;
+
+      try {
+        let due;
+        if (typeof dueDate === 'string') {
+          due = new Date(dueDate);
+        } else if (dueDate.seconds) {
+          due = new Date(dueDate.seconds * 1000);
+        } else if (dueDate.toDate) {
+          due = dueDate.toDate();
+        } else {
+          due = new Date(dueDate);
+        }
+
+        if (isNaN(due.getTime())) return false;
+
+        const now = new Date();
+        now.setHours(23, 59, 59, 999);
+        return due < now;
+      } catch (error) {
+        return false;
+      }
+    })();
 
     const getCardBgColor = () => {
       if (isOverdue) return 'bg-red-50 border-l-4 border-red-500 border border-red-200 dark:bg-slate-800/80 dark:border-red-400/70 dark:border-l-red-400 shadow-sm';

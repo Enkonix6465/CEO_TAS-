@@ -1227,9 +1227,22 @@ const KanbanPage = () => {
                 {filteredTasks.map((task, index) => (
                   <motion.div
                     key={task.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
+                    initial={{ opacity: 0, x: -50, rotateY: 15 }}
+                    animate={{ opacity: 1, x: 0, rotateY: 0 }}
+                    whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{
+                      delay: index * 0.08,
+                      duration: 0.6,
+                      type: "spring",
+                      stiffness: 100
+                    }}
+                    whileHover={{
+                      y: -5,
+                      scale: 1.02,
+                      boxShadow: "0 20px 40px -10px rgba(139, 92, 246, 0.3)",
+                      transition: { duration: 0.2 }
+                    }}
                     className="bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-750 rounded-xl p-4 border border-purple-200/50 dark:border-purple-500/30 hover:shadow-lg transition-all cursor-pointer group"
                     onClick={() => {
                       setSelectedTask(task);

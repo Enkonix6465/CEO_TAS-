@@ -1380,7 +1380,19 @@ const KanbanPage = () => {
                       </motion.div>
 
                       <motion.div
-                        whileHover={{ y: -2, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
+                        initial={{ opacity: 0, rotateX: 20 }}
+                        whileInView={{ opacity: 1, rotateX: 0 }}
+                        viewport={{ once: true }}
+                        transition={{
+                          delay: index * 0.15 + 0.5,
+                          duration: 0.7
+                        }}
+                        whileHover={{
+                          y: -8,
+                          rotateX: -5,
+                          boxShadow: "0 20px 40px -10px rgba(139, 92, 246, 0.4)",
+                          scale: 1.02
+                        }}
                         className="flex-1 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-750 rounded-xl p-4 border border-purple-200/50 dark:border-purple-500/30 cursor-pointer group"
                         onClick={() => {
                           setSelectedTask(task);

@@ -22,6 +22,7 @@ import {
   Play,
   Pause,
   Square,
+  X,
 } from "lucide-react";
 import toast from "react-hot-toast";
 

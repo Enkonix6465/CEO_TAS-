@@ -154,8 +154,7 @@ const Dashboard = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [newComment, setNewComment] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
-  const tableRef = React.useRef(null);
-  
+
   // Import overdue utility functions
   const { isTaskOverdue, getOverdueTasks, getOverdueCount } = (() => {
     // Inline utility functions to maintain consistency

@@ -757,12 +757,21 @@ const Dashboard = () => {
               changeIcon: AlertCircle
             },
             {
+              title: "In Progress",
+              value: inProgressTasks.length,
+              icon: Activity,
+              color: "blue",
+              gradient: "from-blue-500 to-indigo-600",
+              change: `${tasks.length > 0 ? Math.round((inProgressTasks.length / tasks.length) * 100) : 0}% of total`,
+              changeIcon: TrendingUp
+            },
+            {
               title: "Total Tasks",
               value: tasks.length,
               icon: ListChecks,
-              color: "blue",
-              gradient: "from-blue-500 to-cyan-600",
-              change: `${tasks.length > 0 ? Math.round((inProgressTasks.length / tasks.length) * 100) : 0}%`,
+              color: "cyan",
+              gradient: "from-cyan-500 to-blue-600",
+              change: `${tasks.length > 0 ? Math.round((completedTasks.length / tasks.length) * 100) : 0}% done`,
               changeIcon: Zap
             },
             {

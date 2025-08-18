@@ -6,8 +6,10 @@ import { Label } from "./ui/label";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { Moon, Sun, Lock, User } from "lucide-react";
+import { Moon, Sun, Lock, User, Mail, ArrowLeft } from "lucide-react";
 import { useThemeStore } from "../store/themeStore";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../lib/firebase";
 
 const taskQuotations = [
   "Success is not final, failure is not fatal: it is the courage to continue that counts.",
@@ -35,6 +37,9 @@ export function LoginForm({
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [currentQuote, setCurrentQuote] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [isResetting, setIsResetting] = useState(false);
   const { signIn } = useAuthStore();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useThemeStore();
@@ -69,6 +74,32 @@ export function LoginForm({
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail.trim()) {
+      toast.error("Please enter your email address");
+      return;
+    }
+
+    setIsResetting(true);
+    try {
+      await sendPasswordResetEmail(auth, resetEmail);
+      toast.success("Password reset email sent! Check your inbox.");
+      setShowForgotPassword(false);
+      setResetEmail("");
+    } catch (error: any) {
+      if (error.code === 'auth/user-not-found') {
+        toast.error("No account found with this email address");
+      } else if (error.code === 'auth/invalid-email') {
+        toast.error("Please enter a valid email address");
+      } else {
+        toast.error("Failed to send reset email. Please try again.");
+      }
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   return (
     <div className={cn("w-full max-w-6xl mx-auto", className)} {...props}>
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-0 items-center min-h-[600px]">
@@ -100,70 +131,127 @@ export function LoginForm({
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="email" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">
-                    USERNAME
-                  </Label>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Enter your username"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="h-14 pl-12 pr-4 rounded-2xl border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-slate-800/50 text-gray-900 dark:text-slate-100 placeholder:text-gray-500 dark:placeholder:text-slate-400 focus:border-violet-500 dark:focus:border-violet-400 focus:ring-violet-500/20 backdrop-blur-sm transition-all duration-300 shadow-sm focus:shadow-lg"
-                    />
-                  </div>
+            {showForgotPassword ? (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <button
+                    onClick={() => setShowForgotPassword(false)}
+                    className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    <ArrowLeft className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                  </button>
+                  <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Reset Password</h2>
                 </div>
                 
-                <div>
-                  <Label htmlFor="password" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">
-                    PASSWORD
-                  </Label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="h-14 pl-12 pr-4 rounded-2xl border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-slate-800/50 text-gray-900 dark:text-slate-100 placeholder:text-gray-500 dark:placeholder:text-slate-400 focus:border-violet-500 dark:focus:border-violet-400 focus:ring-violet-500/20 backdrop-blur-sm transition-all duration-300 shadow-sm focus:shadow-lg"
-                    />
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                  Enter your email address and we'll send you a link to reset your password.
+                </p>
+
+                <form onSubmit={handleForgotPassword} className="space-y-6">
+                  <div>
+                    <Label htmlFor="resetEmail" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">
+                      EMAIL ADDRESS
+                    </Label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                      <Input
+                        id="resetEmail"
+                        type="email"
+                        placeholder="Enter your email address"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        required
+                        className="h-14 pl-12 pr-4 rounded-2xl border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-slate-800/50 text-gray-900 dark:text-slate-100 placeholder:text-gray-500 dark:placeholder:text-slate-400 focus:border-violet-500 dark:focus:border-violet-400 focus:ring-violet-500/20 backdrop-blur-sm transition-all duration-300 shadow-sm focus:shadow-lg"
+                      />
+                    </div>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full h-14 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 text-lg"
+                    disabled={isResetting}
+                  >
+                    {isResetting ? (
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Sending Reset Email...</span>
+                      </div>
+                    ) : (
+                      "SEND RESET EMAIL"
+                    )}
+                  </Button>
+                </form>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="email" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">
+                      USERNAME
+                    </Label>
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="Enter your username"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="h-14 pl-12 pr-4 rounded-2xl border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-slate-800/50 text-gray-900 dark:text-slate-100 placeholder:text-gray-500 dark:placeholder:text-slate-400 focus:border-violet-500 dark:focus:border-violet-400 focus:ring-violet-500/20 backdrop-blur-sm transition-all duration-300 shadow-sm focus:shadow-lg"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="password" className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">
+                      PASSWORD
+                    </Label>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                      <Input
+                        id="password"
+                        type="password"
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className="h-14 pl-12 pr-4 rounded-2xl border-gray-200 dark:border-gray-600 bg-gray-50/50 dark:bg-slate-800/50 text-gray-900 dark:text-slate-100 placeholder:text-gray-500 dark:placeholder:text-slate-400 focus:border-violet-500 dark:focus:border-violet-400 focus:ring-violet-500/20 backdrop-blur-sm transition-all duration-300 shadow-sm focus:shadow-lg"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center">
-                  <input type="checkbox" className="rounded border-gray-300 dark:border-gray-600 text-violet-600 focus:ring-violet-500/20" />
-                  <span className="ml-2 text-gray-600 dark:text-gray-400">Remember me</span>
-                </label>
-                <a href="#" className="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-medium">
-                  Forgot your password?
-                </a>
-              </div>
+                <div className="flex items-center justify-between text-sm">
+                  <label className="flex items-center">
+                    <input type="checkbox" className="rounded border-gray-300 dark:border-gray-600 text-violet-600 focus:ring-violet-500/20" />
+                    <span className="ml-2 text-gray-600 dark:text-gray-400">Remember me</span>
+                  </label>
+                  <button 
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 font-medium transition-colors"
+                  >
+                    Forgot your password?
+                  </button>
+                </div>
 
-              <Button 
-                type="submit" 
-                className="w-full h-14 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 text-lg"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center gap-3">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Signing In...</span>
-                  </div>
-                ) : (
-                  "LOGIN"
-                )}
-              </Button>
-            </form>
+                <Button 
+                  type="submit" 
+                  className="w-full h-14 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 text-lg"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Signing In...</span>
+                    </div>
+                  ) : (
+                    "LOGIN"
+                  )}
+                </Button>
+              </form>
+            )}
           </div>
         </div>
 

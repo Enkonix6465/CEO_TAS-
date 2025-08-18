@@ -1427,7 +1427,7 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {projects.map((project) => {
+                  {projects.map((project, index) => {
                     const projectTasks = tasks.filter(
                       (t) => t.project_id === project.id || t.projectId === project.id
                     );

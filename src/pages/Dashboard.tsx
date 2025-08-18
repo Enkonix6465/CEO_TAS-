@@ -500,6 +500,7 @@ const Dashboard = () => {
  
   const handleCardClick = (status: string) => {
     setCardFilter(status === cardFilter ? null : status);
+    setShouldScroll(true); // trigger scroll after DOM updates
 
     // Use both localStorage and React Router state for better reliability
     localStorage.setItem('taskStatusFilter', status);
@@ -511,6 +512,14 @@ const Dashboard = () => {
       }
     });
   };
+
+  // Scroll effect for project summary table
+  useEffect(() => {
+    if (shouldScroll && tableRef.current) {
+      tableRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      setShouldScroll(false); // reset after scrolling
+    }
+  }, [shouldScroll]);
 
   const getStatusBadgeStyle = (status: string) => {
     switch (status) {

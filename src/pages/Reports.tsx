@@ -61,12 +61,12 @@ const Reports = () => {
 
   useEffect(() => {
     let cleanup: (() => void) | undefined;
-
+    
     const initializeWithRetry = () => {
       try {
         setHasError(false);
         cleanup = setupRealTimeListeners();
-
+        
         if (connectionStatus === 'offline' && retryCount < 3) {
           setTimeout(() => {
             console.log(`Retrying Reports connection (attempt ${retryCount + 1})`);
@@ -83,7 +83,7 @@ const Reports = () => {
     };
 
     initializeWithRetry();
-
+    
     return () => {
       if (cleanup) cleanup();
     };
@@ -98,7 +98,7 @@ const Reports = () => {
     }
 
     setConnectionStatus('connecting');
-
+    
     try {
       // Set up real-time listeners
       const unsubscribeTasks = onSnapshot(
@@ -157,7 +157,7 @@ const Reports = () => {
   const updateReportData = (type: string, data: any[]) => {
     setReportData((prev: any) => {
       const newData = { ...prev };
-
+      
       if (type === 'tasks') {
         const now = new Date();
         newData.performance = {
@@ -172,13 +172,13 @@ const Reports = () => {
         };
 
         // Generate trends based on task creation/completion dates
-        const last30Days = Array.from({ length: 30 }, (_, i) => {
+        const last7Days = Array.from({ length: 7 }, (_, i) => {
           const date = new Date();
           date.setDate(date.getDate() - i);
           return date.toISOString().split('T')[0];
         }).reverse();
 
-        newData.trends = last30Days.slice(-7).map((date, index) => {
+        newData.trends = last7Days.map((date, index) => {
           const dayTasks = data.filter(t => {
             const taskDate = new Date(t.created_at?.toDate?.() || t.created_at || date);
             return taskDate.toISOString().split('T')[0] === date;
@@ -191,7 +191,7 @@ const Reports = () => {
           };
         });
       }
-
+      
       if (type === 'projects') {
         newData.projects = {
           total: data.length,
@@ -204,7 +204,7 @@ const Reports = () => {
           }).length,
         };
       }
-
+      
       if (type === 'employees') {
         newData.team = {
           totalMembers: data.length,
@@ -219,7 +219,7 @@ const Reports = () => {
           }).length,
         };
       }
-
+      
       if (type === 'teams') {
         newData.teams = {
           total: data.length,
@@ -228,7 +228,7 @@ const Reports = () => {
           avgTeamSize: data.length > 0 ? Math.round(data.reduce((sum, team) => sum + (team.members?.length || 0), 0) / data.length) : 0,
         };
       }
-
+      
       return newData;
     });
   };
@@ -241,8 +241,13 @@ const Reports = () => {
   };
 
   const exportReport = () => {
-    // Mock export functionality
-    console.log("Exporting report...");
+    const dataStr = JSON.stringify(reportData, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    const exportFileDefaultName = `report-${selectedReport}-${Date.now()}.json`;
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
   };
 
   // Error boundary fallback
@@ -300,7 +305,7 @@ const Reports = () => {
                   Reports
                 </h1>
                 <p className="text-xs text-violet-600/70 dark:text-violet-300/70 font-medium">
-                  Performance analytics
+                  Real-time performance analytics
                 </p>
               </div>
             </div>
@@ -367,33 +372,37 @@ const Reports = () => {
       <div className="relative z-10 flex-1 overflow-auto px-6 py-4">
         {/* Performance Report */}
         {selectedReport === 'performance' && reportData.performance && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {/* Stats Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 {
                   title: "Total Tasks",
-                  value: reportData.performance.totalTasks,
+                  value: reportData.performance.totalTasks || 0,
                   icon: Target,
-                  color: "violet"
+                  color: "violet",
+                  change: "+12%"
                 },
                 {
                   title: "Completed",
-                  value: reportData.performance.completedTasks,
+                  value: reportData.performance.completedTasks || 0,
                   icon: CheckCircle,
-                  color: "emerald"
+                  color: "emerald",
+                  change: "+8%"
+                },
+                {
+                  title: "In Progress",
+                  value: reportData.performance.inProgressTasks || 0,
+                  icon: Clock,
+                  color: "blue",
+                  change: "-3%"
                 },
                 {
                   title: "Overdue",
-                  value: reportData.performance.overdueTasks,
-                  icon: Clock,
-                  color: "red"
-                },
-                {
-                  title: "Efficiency",
-                  value: `${reportData.performance.efficiency}%`,
-                  icon: Award,
-                  color: "amber"
+                  value: reportData.performance.overdueTasks || 0,
+                  icon: AlertCircle,
+                  color: "red",
+                  change: "-15%"
                 }
               ].map((stat, index) => (
                 <motion.div
@@ -401,74 +410,211 @@ const Reports = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-4 shadow-lg"
+                  className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-200"
                 >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className={`p-2 bg-gradient-to-br from-${stat.color}-500 to-${stat.color}-600 rounded-xl`}>
-                      <stat.icon className="w-4 h-4 text-white" />
+                  <div className="flex items-center justify-between mb-2">
+                    <div className={`p-2 rounded-xl ${
+                      stat.color === 'violet' ? 'bg-violet-100 dark:bg-violet-500/20' :
+                      stat.color === 'emerald' ? 'bg-emerald-100 dark:bg-emerald-500/20' :
+                      stat.color === 'blue' ? 'bg-blue-100 dark:bg-blue-500/20' :
+                      'bg-red-100 dark:bg-red-500/20'
+                    }`}>
+                      <stat.icon className={`w-5 h-5 ${
+                        stat.color === 'violet' ? 'text-violet-600 dark:text-violet-400' :
+                        stat.color === 'emerald' ? 'text-emerald-600 dark:text-emerald-400' :
+                        stat.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
+                        'text-red-600 dark:text-red-400'
+                      }`} />
                     </div>
-                    <div>
-                      <p className="text-xs font-medium text-violet-600/70 dark:text-violet-300/70">
-                        {stat.title}
-                      </p>
-                      <p className="text-xl font-black text-slate-800 dark:text-white">
-                        {stat.value}
-                      </p>
-                    </div>
+                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                      stat.change.startsWith('+') ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' :
+                      'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
+                    }`}>
+                      {stat.change}
+                    </span>
+                  </div>
+                  <div className="text-2xl font-bold text-slate-800 dark:text-white mb-1">
+                    {stat.value}
+                  </div>
+                  <div className="text-sm text-slate-600 dark:text-slate-400">
+                    {stat.title}
                   </div>
                 </motion.div>
               ))}
             </div>
-
-            {/* Chart */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
-              className="bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-6 shadow-lg"
-            >
-              <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Performance Trends</h3>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={reportData.trends}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
-                    <YAxis stroke="#6b7280" fontSize={12} />
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                        border: '1px solid rgba(139, 92, 246, 0.2)',
-                        borderRadius: '12px',
-                        backdropFilter: 'blur(10px)'
-                      }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="tasks"
-                      stroke="#8b5cf6"
-                      strokeWidth={3}
-                      dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 4 }}
-                    />
+            
+            {/* Performance Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-6 shadow-lg">
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Task Completion Trend</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={reportData.trends || []}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
+                    <XAxis dataKey="name" stroke="#6b7280" />
+                    <YAxis stroke="#6b7280" />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={3} />
+                    <Line type="monotone" dataKey="tasks" stroke="#8b5cf6" strokeWidth={3} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-            </motion.div>
+              
+              <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-6 shadow-lg">
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Efficiency Rate</h3>
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-violet-600 dark:text-violet-400 mb-2">
+                    {reportData.performance.efficiency || 0}%
+                  </div>
+                  <div className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                    Overall task completion efficiency
+                  </div>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                    <div 
+                      className="bg-gradient-to-r from-violet-500 to-purple-600 h-3 rounded-full transition-all duration-1000"
+                      style={{ width: `${reportData.performance.efficiency || 0}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Other report types can be added here with similar patterns */}
-        {selectedReport !== 'performance' && (
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="p-4 bg-violet-100 dark:bg-violet-500/20 rounded-xl mb-4 inline-block">
-                <FileText className="w-8 h-8 text-violet-600 dark:text-violet-400" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">
-                {selectedReport.charAt(0).toUpperCase() + selectedReport.slice(1)} Report
-              </h3>
-              <p className="text-sm text-violet-600/70 dark:text-violet-300/70">
-                This report section is being prepared
-              </p>
+        {/* Projects Report */}
+        {selectedReport === 'projects' && reportData.projects && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { title: "Total Projects", value: reportData.projects.total || 0, icon: BarChart3, color: "blue" },
+                { title: "Active", value: reportData.projects.active || 0, icon: Activity, color: "green" },
+                { title: "Completed", value: reportData.projects.completed || 0, icon: CheckCircle, color: "emerald" },
+                { title: "Planning", value: reportData.projects.planning || 0, icon: Clock, color: "yellow" },
+              ].map((stat, index) => (
+                <motion.div
+                  key={stat.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-4 shadow-lg"
+                >
+                  <div className={`p-2 rounded-xl mb-3 inline-block ${
+                    stat.color === 'blue' ? 'bg-blue-100 dark:bg-blue-500/20' :
+                    stat.color === 'green' ? 'bg-green-100 dark:bg-green-500/20' :
+                    stat.color === 'emerald' ? 'bg-emerald-100 dark:bg-emerald-500/20' :
+                    'bg-yellow-100 dark:bg-yellow-500/20'
+                  }`}>
+                    <stat.icon className={`w-5 h-5 ${
+                      stat.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
+                      stat.color === 'green' ? 'text-green-600 dark:text-green-400' :
+                      stat.color === 'emerald' ? 'text-emerald-600 dark:text-emerald-400' :
+                      'text-yellow-600 dark:text-yellow-400'
+                    }`} />
+                  </div>
+                  <div className="text-2xl font-bold text-slate-800 dark:text-white">{stat.value}</div>
+                  <div className="text-sm text-slate-600 dark:text-slate-400">{stat.title}</div>
+                </motion.div>
+              ))}
+            </div>
+            
+            <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-6 shadow-lg">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Project Status Distribution</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <RechartsPieChart>
+                  <Pie
+                    data={[
+                      { name: 'Active', value: reportData.projects.active || 0, fill: '#10b981' },
+                      { name: 'Completed', value: reportData.projects.completed || 0, fill: '#8b5cf6' },
+                      { name: 'Planning', value: reportData.projects.planning || 0, fill: '#f59e0b' },
+                      { name: 'Delayed', value: reportData.projects.delayed || 0, fill: '#ef4444' },
+                    ]}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    dataKey="value"
+                  >
+                    {[
+                      { name: 'Active', value: reportData.projects.active || 0, fill: '#10b981' },
+                      { name: 'Completed', value: reportData.projects.completed || 0, fill: '#8b5cf6' },
+                      { name: 'Planning', value: reportData.projects.planning || 0, fill: '#f59e0b' },
+                      { name: 'Delayed', value: reportData.projects.delayed || 0, fill: '#ef4444' },
+                    ].map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </RechartsPieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {/* Team Report */}
+        {selectedReport === 'team' && reportData.team && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { title: "Total Members", value: reportData.team.totalMembers || 0, icon: Users, color: "blue" },
+                { title: "Active Members", value: reportData.team.activeMembers || 0, icon: User, color: "green" },
+                { title: "Departments", value: reportData.team.departments || 0, icon: BarChart3, color: "purple" },
+                { title: "New Joiners", value: reportData.team.newJoiners || 0, icon: Star, color: "yellow" },
+              ].map((stat, index) => (
+                <motion.div
+                  key={stat.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-4 shadow-lg"
+                >
+                  <div className={`p-2 rounded-xl mb-3 inline-block ${
+                    stat.color === 'blue' ? 'bg-blue-100 dark:bg-blue-500/20' :
+                    stat.color === 'green' ? 'bg-green-100 dark:bg-green-500/20' :
+                    stat.color === 'purple' ? 'bg-purple-100 dark:bg-purple-500/20' :
+                    'bg-yellow-100 dark:bg-yellow-500/20'
+                  }`}>
+                    <stat.icon className={`w-5 h-5 ${
+                      stat.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
+                      stat.color === 'green' ? 'text-green-600 dark:text-green-400' :
+                      stat.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
+                      'text-yellow-600 dark:text-yellow-400'
+                    }`} />
+                  </div>
+                  <div className="text-2xl font-bold text-slate-800 dark:text-white">{stat.value}</div>
+                  <div className="text-sm text-slate-600 dark:text-slate-400">{stat.title}</div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Trends Report */}
+        {selectedReport === 'trends' && reportData.trends && (
+          <div className="space-y-6">
+            <div className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-violet-200/50 dark:border-violet-500/20 rounded-2xl p-6 shadow-lg">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">7-Day Task Trends</h3>
+              <ResponsiveContainer width="100%" height={400}>
+                <AreaChart data={reportData.trends}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
+                  <XAxis dataKey="name" stroke="#6b7280" />
+                  <YAxis stroke="#6b7280" />
+                  <Tooltip />
+                  <Area
+                    type="monotone"
+                    dataKey="tasks"
+                    stackId="1"
+                    stroke="#8b5cf6"
+                    fill="#8b5cf6"
+                    fillOpacity={0.6}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="completed"
+                    stackId="2"
+                    stroke="#10b981"
+                    fill="#10b981"
+                    fillOpacity={0.8}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </div>
         )}

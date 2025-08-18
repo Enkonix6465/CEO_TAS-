@@ -534,29 +534,42 @@ export default function EmployeePerformancePage() {
 
     return (
       <Modal
-        title={`Send Mail to ${employee.name}`}
+        title={<span className="text-gray-900 dark:text-gray-100">{`Send Mail to ${employee.name}`}</span>}
         open={open}
         onCancel={onClose}
         onOk={handleSend}
         okText="Send Email"
         confirmLoading={loading}
+        className="dark:bg-gray-800"
+        styles={{
+          content: {
+            backgroundColor: 'var(--background)',
+            color: 'var(--foreground)'
+          },
+          header: {
+            backgroundColor: 'var(--background)',
+            borderBottom: '1px solid var(--border)'
+          }
+        }}
       >
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium">Subject</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Subject</label>
             <Input
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Email subject"
+              className="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
             />
           </div>
           <div>
-            <label className="text-sm font-medium">Message</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
             <Input.TextArea
               rows={6}
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder="Email body"
+              className="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
             />
           </div>
         </div>

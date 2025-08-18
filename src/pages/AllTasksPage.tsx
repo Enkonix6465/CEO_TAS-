@@ -19,6 +19,9 @@ import {
   TrendingUp,
   Activity,
   AlertCircle,
+  Grid,
+  Table,
+  List,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
@@ -63,6 +66,7 @@ const AllTasksPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedTeam, setSelectedTeam] = useState("all");
+  const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -363,6 +367,32 @@ const AllTasksPage = () => {
                 </option>
               ))}
             </select>
+
+            {/* View Mode Toggle */}
+            <div className="flex border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+              <button
+                onClick={() => setViewMode('card')}
+                className={`px-3 py-2 flex items-center gap-2 text-sm transition-colors ${
+                  viewMode === 'card'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                }`}
+              >
+                <Grid className="w-4 h-4" />
+                Cards
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`px-3 py-2 flex items-center gap-2 text-sm transition-colors ${
+                  viewMode === 'table'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                }`}
+              >
+                <Table className="w-4 h-4" />
+                Table
+              </button>
+            </div>
           </div>
 
           {/* Overall Stats */}
@@ -457,11 +487,130 @@ const AllTasksPage = () => {
                   {/* Team Tasks */}
                   <div className="p-6">
                     {teamTasks.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                        {teamTasks.map((task) => (
-                          <TaskCard key={task.id} task={task} />
-                        ))}
-                      </div>
+                      viewMode === 'card' ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                          {teamTasks.map((task) => (
+                            <TaskCard key={task.id} task={task} />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead className="bg-gray-50 dark:bg-gray-800">
+                              <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                  Task
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                  Status
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                  Priority
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                  Assignee
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                  Reporter
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                  Due Date
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                  Actions
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                              {teamTasks.map((task) => {
+                                const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== "completed";
+                                return (
+                                  <tr key={task.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                      <div className="flex items-center">
+                                        {getStatusIcon(task.status)}
+                                        <div className="ml-3">
+                                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                            {task.title}
+                                          </div>
+                                          {task.task_id && (
+                                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                                              #{task.task_id}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                        task.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
+                                        task.status === 'in_progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
+                                        task.status === 'pending' ? 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400' :
+                                        'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400'
+                                      }`}>
+                                        {task.status.replace('_', ' ').toUpperCase()}
+                                      </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${
+                                        getPriorityColor(task.priority)
+                                      }`}>
+                                        {task.priority?.toUpperCase() || 'LOW'}
+                                      </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                      <div className="flex items-center">
+                                        <img
+                                          src={getEmployeeAvatar(task.assigned_to)}
+                                          alt="avatar"
+                                          className="w-6 h-6 rounded-full mr-2"
+                                        />
+                                        <span className="text-sm text-gray-900 dark:text-white">
+                                          {getEmployeeName(task.assigned_to)}
+                                        </span>
+                                      </div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                      {task.created_by && (
+                                        <div className="flex items-center">
+                                          <img
+                                            src={getEmployeeAvatar(task.created_by)}
+                                            alt="avatar"
+                                            className="w-6 h-6 rounded-full mr-2"
+                                          />
+                                          <span className="text-sm text-gray-900 dark:text-white">
+                                            {getEmployeeName(task.created_by)}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                      {task.due_date ? (
+                                        <span className={isOverdue ? 'text-red-600 dark:text-red-400' : ''}>
+                                          {new Date(task.due_date).toLocaleDateString()}
+                                          {isOverdue && (
+                                            <span className="ml-1 text-xs">(Overdue)</span>
+                                          )}
+                                        </span>
+                                      ) : (
+                                        'No due date'
+                                      )}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                      <button
+                                        onClick={() => navigate(`/task/${task.id}`)}
+                                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                                      >
+                                        View
+                                      </button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )
                     ) : (
                       <div className="text-center py-8">
                         <Circle className="w-12 h-12 text-gray-400 mx-auto mb-3" />

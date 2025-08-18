@@ -60,15 +60,15 @@ const Reports = () => {
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    let retryTimer: NodeJS.Timeout;
-    
+    let cleanup: (() => void) | undefined;
+
     const initializeWithRetry = () => {
       try {
         setHasError(false);
-        fetchReportData();
-        
+        cleanup = setupRealTimeListeners();
+
         if (connectionStatus === 'offline' && retryCount < 3) {
-          retryTimer = setTimeout(() => {
+          setTimeout(() => {
             console.log(`Retrying Reports connection (attempt ${retryCount + 1})`);
             setRetryCount(prev => prev + 1);
             initializeWithRetry();
@@ -83,13 +83,13 @@ const Reports = () => {
     };
 
     initializeWithRetry();
-    
+
     return () => {
-      if (retryTimer) clearTimeout(retryTimer);
+      if (cleanup) cleanup();
     };
   }, [retryCount]);
 
-  const fetchReportData = async () => {
+  const setupRealTimeListeners = () => {
     if (!db) {
       console.warn("Firebase not available for Reports");
       setConnectionStatus('offline');
@@ -98,62 +98,146 @@ const Reports = () => {
     }
 
     setConnectionStatus('connecting');
-    
+
     try {
-      const [tasksSnapshot, projectsSnapshot, usersSnapshot] = await Promise.all([
-        getDocs(collection(db, "tasks")).catch(() => ({ docs: [] })),
-        getDocs(collection(db, "projects")).catch(() => ({ docs: [] })),
-        getDocs(collection(db, "users")).catch(() => ({ docs: [] })),
-      ]);
-
-      const tasks = tasksSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      const projects = projectsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      const users = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
-      // Generate report data
-      const data = {
-        performance: {
-          totalTasks: tasks.length,
-          completedTasks: tasks.filter(t => t.status === 'completed').length,
-          overdueTasks: tasks.filter(t => new Date(t.dueDate || '') < new Date() && t.status !== 'completed').length,
-          efficiency: tasks.length > 0 ? Math.round((tasks.filter(t => t.status === 'completed').length / tasks.length) * 100) : 0,
+      // Set up real-time listeners
+      const unsubscribeTasks = onSnapshot(
+        collection(db, "tasks"),
+        (snapshot) => {
+          const tasks = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          updateReportData('tasks', tasks);
         },
-        projects: {
-          total: projects.length,
-          active: projects.filter(p => p.status === 'active').length,
-          completed: projects.filter(p => p.status === 'completed').length,
-          delayed: projects.filter(p => p.status === 'delayed').length,
-        },
-        team: {
-          totalMembers: users.length,
-          activeDevelopers: users.filter(u => u.role === 'developer').length,
-          teamLeads: users.filter(u => u.role === 'team_lead').length,
-          productivity: Math.round(Math.random() * 100), // Mock productivity score
-        },
-        trends: [
-          { name: "Week 1", tasks: Math.floor(Math.random() * 50), projects: Math.floor(Math.random() * 10) },
-          { name: "Week 2", tasks: Math.floor(Math.random() * 50), projects: Math.floor(Math.random() * 10) },
-          { name: "Week 3", tasks: Math.floor(Math.random() * 50), projects: Math.floor(Math.random() * 10) },
-          { name: "Week 4", tasks: Math.floor(Math.random() * 50), projects: Math.floor(Math.random() * 10) },
-        ]
-      };
+        (error) => console.error("Tasks listener error:", error)
+      );
 
-      setReportData(data);
+      const unsubscribeProjects = onSnapshot(
+        collection(db, "projects"),
+        (snapshot) => {
+          const projects = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          updateReportData('projects', projects);
+        },
+        (error) => console.error("Projects listener error:", error)
+      );
+
+      const unsubscribeEmployees = onSnapshot(
+        collection(db, "employees"),
+        (snapshot) => {
+          const employees = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          updateReportData('employees', employees);
+        },
+        (error) => console.error("Employees listener error:", error)
+      );
+
+      const unsubscribeTeams = onSnapshot(
+        collection(db, "teams"),
+        (snapshot) => {
+          const teams = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          updateReportData('teams', teams);
+        },
+        (error) => console.error("Teams listener error:", error)
+      );
+
       setConnectionStatus('connected');
+      setLoading(false);
+
+      return () => {
+        unsubscribeTasks();
+        unsubscribeProjects();
+        unsubscribeEmployees();
+        unsubscribeTeams();
+      };
     } catch (error) {
-      console.error("Error fetching report data:", error);
+      console.error("Error setting up listeners:", error);
       setConnectionStatus('offline');
       setHasError(true);
-    } finally {
       setLoading(false);
     }
+  };
+
+  const updateReportData = (type: string, data: any[]) => {
+    setReportData((prev: any) => {
+      const newData = { ...prev };
+
+      if (type === 'tasks') {
+        const now = new Date();
+        newData.performance = {
+          totalTasks: data.length,
+          completedTasks: data.filter(t => t.status === 'completed' || t.progress_status === 'completed').length,
+          inProgressTasks: data.filter(t => t.status === 'in_progress' || t.progress_status === 'in_progress').length,
+          overdueTasks: data.filter(t => {
+            const dueDate = new Date(t.due_date || t.dueDate || '');
+            return dueDate < now && (t.status !== 'completed' && t.progress_status !== 'completed');
+          }).length,
+          efficiency: data.length > 0 ? Math.round((data.filter(t => t.status === 'completed' || t.progress_status === 'completed').length / data.length) * 100) : 0,
+        };
+
+        // Generate trends based on task creation/completion dates
+        const last30Days = Array.from({ length: 30 }, (_, i) => {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          return date.toISOString().split('T')[0];
+        }).reverse();
+
+        newData.trends = last30Days.slice(-7).map((date, index) => {
+          const dayTasks = data.filter(t => {
+            const taskDate = new Date(t.created_at?.toDate?.() || t.created_at || date);
+            return taskDate.toISOString().split('T')[0] === date;
+          });
+          return {
+            name: `Day ${index + 1}`,
+            date,
+            tasks: dayTasks.length,
+            completed: dayTasks.filter(t => t.status === 'completed' || t.progress_status === 'completed').length,
+          };
+        });
+      }
+
+      if (type === 'projects') {
+        newData.projects = {
+          total: data.length,
+          active: data.filter(p => p.status === 'active' || p.status === 'in_progress').length,
+          completed: data.filter(p => p.status === 'completed').length,
+          planning: data.filter(p => p.status === 'planning' || p.status === 'pending').length,
+          delayed: data.filter(p => {
+            const dueDate = new Date(p.endDate || p.due_date || '');
+            return dueDate < new Date() && p.status !== 'completed';
+          }).length,
+        };
+      }
+
+      if (type === 'employees') {
+        newData.team = {
+          totalMembers: data.length,
+          activeMembers: data.filter(e => e.status === 'Active').length,
+          departments: [...new Set(data.map(e => e.department).filter(Boolean))].length,
+          newJoiners: data.filter(e => {
+            if (!e.joiningDate) return false;
+            const joinDate = new Date(e.joiningDate);
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            return joinDate > thirtyDaysAgo;
+          }).length,
+        };
+      }
+
+      if (type === 'teams') {
+        newData.teams = {
+          total: data.length,
+          active: data.filter(t => t.status === 'active').length,
+          totalMembers: data.reduce((sum, team) => sum + (team.members?.length || 0), 0),
+          avgTeamSize: data.length > 0 ? Math.round(data.reduce((sum, team) => sum + (team.members?.length || 0), 0) / data.length) : 0,
+        };
+      }
+
+      return newData;
+    });
   };
 
   const handleRefresh = () => {
     setHasError(false);
     setRetryCount(0);
     setLoading(true);
-    fetchReportData();
+    setupRealTimeListeners();
   };
 
   const exportReport = () => {

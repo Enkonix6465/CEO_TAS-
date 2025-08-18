@@ -8,6 +8,7 @@ import {
   getDocs,
   collection,
 } from "firebase/firestore";
+import { Search, Edit, Trash2, UserPlus, Users } from "lucide-react";
 
 interface Employee {
   id: string;
@@ -27,75 +28,6 @@ interface Employee {
   status: string;
 }
 
-// --- AI Employee Panel ---
-function AIEmployeePanel({ employees }: { employees: Employee[] }) {
-  // Attrition risk: employees with status not 'Active' or with short tenure
-  const attritionRisks = React.useMemo(() => {
-    const now = new Date();
-    return employees.filter(emp => {
-      if (emp.status !== 'Active') return true;
-      if (emp.joiningDate) {
-        const join = new Date(emp.joiningDate);
-        const months = (now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth());
-        return months < 3; // New joiners at risk
-      }
-      return false;
-    });
-  }, [employees]);
-
-  // Skill gap: employees without a title or department
-  const skillGaps = React.useMemo(() => employees.filter(emp => !emp.title || !emp.department), [employees]);
-
-  // Onboarding: new joiners in last 30 days
-  const onboarding = React.useMemo(() => {
-    const now = new Date();
-    return employees.filter(emp => {
-      if (!emp.joiningDate) return false;
-      const join = new Date(emp.joiningDate);
-      const diff = (now.getTime() - join.getTime()) / (1000 * 60 * 60 * 24);
-      return diff < 30;
-    });
-  }, [employees]);
-
-  const [expanded, setExpanded] = React.useState(false);
-
-  return (
-    <div className="mb-6 bg-gradient-to-br from-blue-50 via-yellow-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-xl shadow p-4">
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="font-bold text-blue-700 dark:text-blue-300 flex items-center gap-2">🤖 AI Employee Insights</h3>
-        <button onClick={() => setExpanded(e => !e)} className="text-xs text-blue-600 dark:text-blue-300 underline">{expanded ? 'Hide' : 'Show'}</button>
-      </div>
-      {expanded && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <h4 className="font-semibold text-red-700 dark:text-red-300 mb-1 text-xs flex items-center gap-1">⚠️ Attrition Risk</h4>
-            {attritionRisks.length === 0 ? <div className="text-xs text-gray-400">None</div> : (
-              <ul className="text-xs text-gray-700 dark:text-gray-200 space-y-1">
-                {attritionRisks.map((emp, i) => <li key={i}>{emp.name} ({emp.status})</li>)}
-              </ul>
-            )}
-          </div>
-          <div>
-            <h4 className="font-semibold text-yellow-700 dark:text-yellow-300 mb-1 text-xs flex items-center gap-1">🧑‍💻 Skill Gaps</h4>
-            {skillGaps.length === 0 ? <div className="text-xs text-gray-400">None</div> : (
-              <ul className="text-xs text-gray-700 dark:text-gray-200 space-y-1">
-                {skillGaps.map((emp, i) => <li key={i}>{emp.name} (Missing: {!emp.title ? 'Title' : ''}{!emp.title && !emp.department ? ', ' : ''}{!emp.department ? 'Department' : ''})</li>)}
-              </ul>
-            )}
-          </div>
-          <div>
-            <h4 className="font-semibold text-green-700 dark:text-green-300 mb-1 text-xs flex items-center gap-1">🌱 Onboarding</h4>
-            {onboarding.length === 0 ? <div className="text-xs text-gray-400">None</div> : (
-              <ul className="text-xs text-gray-700 dark:text-gray-200 space-y-1">
-                {onboarding.map((emp, i) => <li key={i}>{emp.name} (Joined: {emp.joiningDate})</li>)}
-              </ul>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function EmployeeManagement() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -119,6 +51,7 @@ export default function EmployeeManagement() {
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const auth = getAuth();
   const db = getFirestore();
@@ -242,10 +175,12 @@ export default function EmployeeManagement() {
         </div>
       )}
 
-      <AIEmployeePanel employees={employees} />
 
       <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded mb-8 animate-slide-up">
-        <h3 className="font-semibold mb-4 text-lg">➕ Add / Edit Employee</h3>
+        <h3 className="font-semibold mb-4 text-lg flex items-center gap-2">
+          <UserPlus className="w-5 h-5" />
+          Add / Edit Employee
+        </h3>
         <form
           onSubmit={e => { e.preventDefault(); handleAddOrUpdate(); }}
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
@@ -409,15 +344,35 @@ export default function EmployeeManagement() {
           </div>
           <button
             type="submit"
-            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded transition duration-200 col-span-1 sm:col-span-2 md:col-span-4"
+            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded transition duration-200 col-span-1 sm:col-span-2 md:col-span-4 flex items-center justify-center gap-2"
           >
+            <UserPlus className="w-4 h-4" />
             {editIndex !== null ? "Update" : "Add"} Employee
           </button>
         </form>
       </div>
 
       <div className="bg-white dark:bg-gray-800 shadow-lg p-4 rounded animate-fade-in">
-        <h3 className="font-semibold mb-4 text-lg">📋 All Employees</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-lg flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            All Employees ({employees.filter(emp =>
+              emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              emp.department.toLowerCase().includes(searchTerm.toLowerCase())
+            ).length})
+          </h3>
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search employees..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+            />
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full table-auto border text-sm min-w-[800px]">
             <thead className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100">
@@ -434,7 +389,14 @@ export default function EmployeeManagement() {
               </tr>
             </thead>
             <tbody>
-              {employees.map((emp, idx) => (
+              {employees
+                .filter(emp =>
+                  emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  emp.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  emp.employeeId.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .map((emp, idx) => (
                 <tr
                   key={idx}
                   className="text-center hover:bg-gray-50 dark:hover:bg-gray-700 transition"
@@ -459,15 +421,17 @@ export default function EmployeeManagement() {
                   <td className="border px-2 py-2">{emp.status}</td>
                   <td className="border px-2 py-2 space-x-2">
                     <button
-                      onClick={() => handleEdit(idx)}
-                      className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+                      onClick={() => handleEdit(employees.indexOf(emp))}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded flex items-center gap-1 inline-flex"
                     >
+                      <Edit className="w-3 h-3" />
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(idx)}
-                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+                      onClick={() => handleDelete(employees.indexOf(emp))}
+                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded flex items-center gap-1 inline-flex"
                     >
+                      <Trash2 className="w-3 h-3" />
                       Delete
                     </button>
                   </td>

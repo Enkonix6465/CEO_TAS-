@@ -33,6 +33,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import { ConnectionStatusIndicator } from "./components/ConnectionStatusIndicator";
 import ErrorBoundary from "./components/ErrorBoundary";
 import BugReportPage from "./pages/BugReportPage";
+import AllTasksPage from "./pages/AllTasksPage";
 function App() {
   const { user, loading } = useAuthStore();
   const { theme } = useThemeStore();
@@ -94,6 +95,7 @@ function App() {
           <Route path="KanbanPage" element={<Kanbanpage />} />
           <Route path="task/:taskId" element={<TaskDetail />} />
           <Route path="BugReportPage" element={<BugReportPage />}/>
+          <Route path="AllTasks" element={<AllTasksPage />}/>
         </Route>
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

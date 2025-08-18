@@ -863,7 +863,7 @@ const Dashboard = () => {
             <div className="h-40 flex items-center justify-center">
               <Doughnut
                 data={{
-                  labels: ['Done', 'Active', 'Pending'],
+                  labels: ['Done', 'In Progress', 'Pending'],
                   datasets: [
                     {
                       data: [completedTasks.length, inProgressTasks.length, pendingTasks.length],

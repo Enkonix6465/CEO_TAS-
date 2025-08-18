@@ -1421,6 +1421,7 @@ const Dashboard = () => {
                     <th className="p-4 border border-gray-300 dark:border-gray-600">Team Leader</th>
                     <th className="p-4 border border-gray-300 dark:border-gray-600">Total Tasks</th>
                     <th className="p-4 border border-gray-300 dark:border-gray-600">Completed</th>
+                    <th className="p-4 border border-gray-300 dark:border-gray-600">In Progress</th>
                     <th className="p-4 border border-gray-300 dark:border-gray-600">Pending</th>
                     <th className="p-4 border border-gray-300 dark:border-gray-600">Performance</th>
                   </tr>

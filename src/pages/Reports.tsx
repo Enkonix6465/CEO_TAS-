@@ -165,8 +165,33 @@ const Reports = () => {
           completedTasks: data.filter(t => t.status === 'completed' || t.progress_status === 'completed').length,
           inProgressTasks: data.filter(t => t.status === 'in_progress' || t.progress_status === 'in_progress').length,
           overdueTasks: data.filter(t => {
-            const dueDate = new Date(t.due_date || t.dueDate || '');
-            return dueDate < now && (t.status !== 'completed' && t.progress_status !== 'completed');
+            // Use consistent overdue logic
+            if (!t || t.status === 'completed' || t.status === 'cancelled' || t.progress_status === 'completed') {
+              return false;
+            }
+            const dueDate = t.due_date || t.dueDate;
+            if (!dueDate) return false;
+
+            try {
+              let due;
+              if (typeof dueDate === 'string') {
+                due = new Date(dueDate);
+              } else if (dueDate.seconds) {
+                due = new Date(dueDate.seconds * 1000);
+              } else if (dueDate.toDate) {
+                due = dueDate.toDate();
+              } else {
+                due = new Date(dueDate);
+              }
+
+              if (isNaN(due.getTime())) return false;
+
+              const currentTime = new Date();
+              currentTime.setHours(23, 59, 59, 999);
+              return due < currentTime;
+            } catch (error) {
+              return false;
+            }
           }).length,
           efficiency: data.length > 0 ? Math.round((data.filter(t => t.status === 'completed' || t.progress_status === 'completed').length / data.length) * 100) : 0,
         };

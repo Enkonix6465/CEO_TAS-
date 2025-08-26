@@ -335,22 +335,7 @@ function Projects() {
 
           {/* Filter Buttons */}
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 p-1 bg-white/60 dark:bg-slate-800/60 rounded-lg border border-slate-200/50 dark:border-slate-600/30 backdrop-blur-sm">
-              {['all', 'planning', 'active', 'on-hold', 'completed'].map((status) => (
-                <button
-                  key={status}
-                  onClick={() => setFilterStatus(status)}
-                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 capitalize whitespace-nowrap ${
-                    filterStatus === status
-                      ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
-                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50'
-                  }`}
-                >
-                  {status === 'all' ? 'All Status' : status === 'on-hold' ? 'On Hold' : status}
-                </button>
-              ))}
-            </div>
-
+           
             {/* Clear Filters Button */}
             {(searchTerm || filterStatus !== 'all') && (
               <motion.button

@@ -357,9 +357,9 @@ export default function EmployeeManagement() {
           <h3 className="font-semibold text-lg flex items-center gap-2">
             <Users className="w-5 h-5" />
             All Employees ({employees.filter(emp =>
-              emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              emp.department.toLowerCase().includes(searchTerm.toLowerCase())
+              (emp.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+              (emp.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+              (emp.department?.toLowerCase() || '').includes(searchTerm.toLowerCase())
             ).length})
           </h3>
           <div className="relative">
@@ -391,10 +391,10 @@ export default function EmployeeManagement() {
             <tbody>
               {employees
                 .filter(emp =>
-                  emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  emp.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  emp.employeeId.toLowerCase().includes(searchTerm.toLowerCase())
+                  (emp.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                  (emp.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                  (emp.department?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                  (emp.employeeId?.toLowerCase() || '').includes(searchTerm.toLowerCase())
                 )
                 .map((emp, idx) => (
                 <tr

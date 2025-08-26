@@ -255,38 +255,27 @@ function Tasks() {
     }
   };
 
-  // Function to check if a task is overdue (consistent with other pages)
+  // Function to check if a task is overdue
   const isTaskOverdue = (task) => {
-    if (!task || task.status === 'completed' || task.status === 'cancelled' || task.progress_status === 'completed') return false;
+    if (!task || task.status === 'completed' || task.status === 'cancelled') return false;
 
     // Handle different date field names and formats
     const dueDate = task.dueDate || task.due_date;
     if (!dueDate) return false;
 
-    try {
-      let due;
-      if (typeof dueDate === 'string') {
-        due = new Date(dueDate);
-      } else if (dueDate.seconds) {
-        // Firestore timestamp
-        due = new Date(dueDate.seconds * 1000);
-      } else if (dueDate.toDate) {
-        // Firestore timestamp with toDate method
-        due = dueDate.toDate();
-      } else {
-        due = new Date(dueDate);
-      }
-
-      // Invalid date check
-      if (isNaN(due.getTime())) return false;
-
-      const today = new Date();
-      today.setHours(23, 59, 59, 999); // End of today
-      return due < today;
-    } catch (error) {
-      console.warn('Error parsing due date:', dueDate, error);
-      return false;
+    let due;
+    if (typeof dueDate === 'string') {
+      due = new Date(dueDate);
+    } else if (dueDate.seconds) {
+      // Firestore timestamp
+      due = new Date(dueDate.seconds * 1000);
+    } else {
+      due = new Date(dueDate);
     }
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999); // End of today
+    return due < today;
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -298,7 +287,16 @@ function Tasks() {
     if (filterStatus === "overdue") {
       matchesStatus = isTaskOverdue(task);
     } else {
-      matchesStatus = filterStatus === "all" || task.status === filterStatus;
+      // Fixed: Handle both underscore and hyphen formats consistently
+      const taskStatus = task.status;
+      let filterStatusNormalized = filterStatus;
+      
+      // Convert filter status to match data format
+      if (filterStatus === "in-progress") {
+        filterStatusNormalized = "in_progress";
+      }
+      
+      matchesStatus = filterStatus === "all" || taskStatus === filterStatusNormalized;
     }
     
     const matchesPriority = filterPriority === "all" || task.priority === filterPriority;
@@ -349,16 +347,31 @@ function Tasks() {
     }
   };
 
+  // Fixed: Consistent status handling in getStatusIcon
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
         return CheckCircle;
-      case 'in_progress':
-  return Play;
+      case 'in_progress': // Fixed: Use underscore instead of hyphen
+        return Play;
       case 'pending':
         return Circle;
       default:
         return Square;
+    }
+  };
+
+  // Function to format status for display
+  const formatStatusForDisplay = (status: string) => {
+    switch (status) {
+      case 'in_progress':
+        return 'In Progress';
+      case 'pending':
+        return 'Pending';
+      case 'completed':
+        return 'Completed';
+      default:
+        return status.charAt(0).toUpperCase() + status.slice(1);
     }
   };
 
@@ -477,7 +490,7 @@ function Tasks() {
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
-            <option value="in-progress">In_Progress</option>
+            <option value="in-progress">In Progress</option>
             <option value="completed">Completed</option>
             <option value="overdue">Overdue</option>
           </select>
@@ -538,7 +551,10 @@ function Tasks() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => updateTaskStatus(task.id, task.status === 'completed' ? 'pending' : 'in_progress')}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateTaskStatus(task.id, task.status === 'completed' ? 'pending' : 'completed');
+                        }}
                         className="p-1.5 hover:bg-violet-100 dark:hover:bg-violet-500/20 rounded-lg transition-colors"
                       >
                         <StatusIcon className={`w-5 h-5 ${
@@ -560,13 +576,19 @@ function Tasks() {
                     
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
-                        onClick={() => handleEdit(task)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(task);
+                        }}
                         className="p-1 hover:bg-violet-100 dark:hover:bg-violet-500/20 rounded-lg transition-colors"
                       >
                         <Edit2 className="w-4 h-4 text-violet-600 dark:text-violet-400" />
                       </button>
                       <button
-                        onClick={() => handleDelete(task.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(task.id);
+                        }}
                         className="p-1 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-colors"
                       >
                         <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400" />
@@ -576,7 +598,7 @@ function Tasks() {
                   
                   <div className="flex flex-wrap gap-2 mb-3">
                     <span className={`px-2 py-1 rounded-lg text-xs font-medium border ${getStatusColor(task.status)}`}>
-                      {task.status}
+                      {formatStatusForDisplay(task.status)}
                     </span>
                     
                     <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getPriorityColor(task.priority)}`}>
@@ -709,6 +731,42 @@ function Tasks() {
                       <option value="high">High</option>
                     </select>
                   </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Assignee
+                  </label>
+                  <select
+                    value={formData.assignee}
+                    onChange={(e) => setFormData({ ...formData, assignee: e.target.value })}
+                    className="w-full px-3 py-2 border border-violet-200 dark:border-violet-500/30 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  >
+                    <option value="">Select Assignee</option>
+                    {users.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.fullName || user.name || user.email}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Project
+                  </label>
+                  <select
+                    value={formData.projectId}
+                    onChange={(e) => setFormData({ ...formData, projectId: e.target.value })}
+                    className="w-full px-3 py-2 border border-violet-200 dark:border-violet-500/30 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  >
+                    <option value="">Select Project</option>
+                    {projects.map((project) => (
+                      <option key={project.id} value={project.id}>
+                        {project.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 
                 <div>

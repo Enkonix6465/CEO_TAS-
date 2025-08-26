@@ -442,13 +442,7 @@ function Layout() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Link
-                to="/TeamManager"
-                className="px-4 py-2 text-sm bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
-                title="View created teams"
-              >
-                Teams
-              </Link>
+           
               
               <Link
                 to="/settings"

@@ -1402,8 +1402,10 @@ const Dashboard = () => {
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto p-6">
-              <table className="w-full text-base text-left border-collapse">
+            <div className="p-6">
+  <div className="overflow-x-auto overflow-y-auto max-h-[400px] rounded-lg border border-gray-200 dark:border-gray-700">
+    <table className="min-w-full text-base text-left border-collapse">
+
                 <thead className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white text-lg">
                   <tr>
                     <th className="p-4 border border-gray-300 dark:border-gray-600">Project Name</th>
@@ -1642,6 +1644,7 @@ const Dashboard = () => {
               )}
             </div>
           </div>
+            </div>  
         </div>
       )}
     </div>

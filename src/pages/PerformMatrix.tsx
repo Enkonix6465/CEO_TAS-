@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import PortalTooltip from "../components/PortalTooltip";
 =======
->>>>>>> 82bc0d4f429399f092961856dfd97a2de80dceab
+>>>>>>> 25799db (Udated ui and funcinality of ceo)
 
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../lib/firebase"; // adjust path to match your project
@@ -111,7 +111,7 @@ const CustomTooltip = ({ performanceData, children }) => {
     </div>
   );
 };
->>>>>>> 82bc0d4f429399f092961856dfd97a2de80dceab
+>>>>>>> 25799db (Udated ui and funcinality of ceo)
 const formatServerTime = (date) => {
   const istOffset = 5.5 * 60; // minutes
   const istDate = new Date(date.getTime() + istOffset * 60 * 1000);
@@ -944,7 +944,7 @@ export default function EmployeePerformancePage() {
                           </span>
                         </div>
                       </CustomTooltip>
->>>>>>> 82bc0d4f429399f092961856dfd97a2de80dceab
+>>>>>>> 25799db (Udated ui and funcinality of ceo)
                     </div>
                   </div>
                 </div>

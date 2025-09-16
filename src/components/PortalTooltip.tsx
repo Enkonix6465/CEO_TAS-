@@ -34,7 +34,7 @@ function PortalTooltip({ triggerContent, children }) {
 
   return (
     <>
-      {/* Trigger */}
+      
       <div 
         ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)} 

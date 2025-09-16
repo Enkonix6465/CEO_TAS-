@@ -46,7 +46,10 @@
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
+<<<<<<< HEAD
     "@vitejs/plugin-react-swc": "^4.0.1",
+=======
+>>>>>>> 82bc0d4f429399f092961856dfd97a2de80dceab
     "autoprefixer": "^10.4.21",
     "eslint": "^9.9.1",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",

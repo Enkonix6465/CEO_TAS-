@@ -12,7 +12,7 @@ function PortalTooltip({ triggerContent, children }) {
     if (isOpen && triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
       setPosition({
-        top: rect.top - 70, 
+        top: rect.top - 70, // 70px above the text
         left: rect.left,    // Aligned to the left
       });
     }

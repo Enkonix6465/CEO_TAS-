@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-<<<<<<< HEAD
 import { createPortal } from "react-dom";
 import PortalTooltip from "../components/PortalTooltip";
-=======
->>>>>>> 25799db (Udated ui and funcinality of ceo)
-
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../lib/firebase"; // adjust path to match your project
 import { doc, getDoc, addDoc, serverTimestamp } from "firebase/firestore";
@@ -57,61 +53,6 @@ import { Input } from "antd";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-<<<<<<< HEAD
-
-=======
-const CustomTooltip = ({ performanceData, children }) => {
-  const [show, setShow] = useState(false);
-  console.log("Tooltip performanceData:", performanceData); // Debugging
-
-  return (
-    <div
-      className="relative inline-block"
-      onMouseEnter={() => setShow(true)}
-      onMouseLeave={() => setShow(false)}
-    >
-      {children}
-      {show && (
-        <div className="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-2 w-[320px] whitespace-pre-line text-sm p-4 bg-white border border-gray-200 rounded-xl shadow-xl">
-          <div className="font-semibold mb-2">
-            ⭐️ Performance Score Breakdown
-          </div>
-          <div className="space-y-1 text-gray-800">
-            <p>
-              🟦 <strong>Productivity Score:</strong>{" "}
-              {performanceData?.productivityScore ?? "0"} / 100
-            </p>
-            <p>
-              🟩 <strong>Completion Rate:</strong>{" "}
-              {performanceData?.completionRate?.toFixed(1) ?? "0.0"}% / 100%
-            </p>
-            <p>
-              🟨 <strong>On-Time Delivery:</strong>{" "}
-              {performanceData?.onTimeRate?.toFixed(1) ?? "0.0"}% / 100%
-            </p>
-            <p>
-              🟪 <strong>Review Score:</strong>{" "}
-              {performanceData?.reviewScore ?? "0"} / 100
-            </p>
-            <p>
-              🔵 <strong>HR Score:</strong>{" "}
-              {performanceData?.hrFeedbackScore !== undefined
-                ? Number(performanceData.hrFeedbackScore).toFixed(1)
-                : "0.0"}{" "}
-              / 100
-            </p>
-          </div>
-          <hr className="my-2" />
-          <p className="font-bold text-gray-900">
-            🏁 Final Score: {performanceData?.totalPerformanceScore ?? "0"}% /
-            100%
-          </p>
-        </div>
-      )}
-    </div>
-  );
-};
->>>>>>> 25799db (Udated ui and funcinality of ceo)
 const formatServerTime = (date) => {
   const istOffset = 5.5 * 60; // minutes
   const istDate = new Date(date.getTime() + istOffset * 60 * 1000);
@@ -876,75 +817,49 @@ export default function EmployeePerformancePage() {
                         <User className="w-4 h-4" />
                         Employee ID: {selectedEmployee.id.slice(-6)}
                       </div>
-<<<<<<< HEAD
-                      
-                      <PortalTooltip 
-    triggerContent={
-     <div className="flex items-center gap-2">
-  <div className="flex items-center gap-1">
-    Performance Matrix:{" "}
-    <span className="font-bold text-purple-600 dark:text-purple-400">
-      {performanceData.totalPerformanceScore}%
-    </span>
-  </div>
-  
-  <button
-    className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700"
-    onClick={() => console.log("Button clicked")}
-  >
-    View Details
-  </button>
-</div>
+<PortalTooltip
+  triggerContent={
+    <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
+        Performance Matrix:
+        <span className="font-bold text-purple-600 dark:text-purple-400">
+          {performanceData.totalPerformanceScore}%
+        </span>
+      </div>
 
-    }
-  >
-    <div className="whitespace-pre-line text-sm">
-      <div className="font-semibold mb-2">
-        ⭐️ Performance Score Breakdown
-      </div>
-      <div className="space-y-1 text-gray-800 dark:text-gray-200">
-        <p>
-          🟦 <strong>Productivity Score:</strong>{" "}
-          {performanceData?.productivityScore ?? "0"} / 100
-        </p>
-        <p>
-          🟩 <strong>Completion Rate:</strong>{" "}
-          {performanceData?.completionRate?.toFixed(1) ?? "0.0"}% / 100%
-        </p>
-        <p>
-          🟨 <strong>On-Time Delivery:</strong>{" "}
-          {performanceData?.onTimeRate?.toFixed(1) ?? "0.0"}% / 100%
-        </p>
-        <p>
-          🟪 <strong>Review Score:</strong>{" "}
-          {performanceData?.reviewScore ?? "0"} / 100
-        </p>
-        <p>
-          🔵 <strong>HR Score:</strong>{" "}
-          {performanceData?.hrFeedbackScore !== undefined
-            ? Number(performanceData.hrFeedbackScore).toFixed(1)
-            : "0.0"}{" "}
-          / 100
-        </p>
-      </div>
-      <hr className="my-2" />
-      <p className="font-bold text-gray-900 dark:text-gray-100">
-        🏁 Final Score: {performanceData?.totalPerformanceScore ?? "0"}% /
-        100%
+      <button
+        className="px-3 py-1 bg-purple-600 text-white rounded hover:bg-purple-700"
+      >
+        View Details
+      </button>
+    </div>
+  }
+>
+  <div className="whitespace-pre-line text-sm">
+    <div className="font-semibold mb-2">
+      ⭐️ Performance Score Breakdown
+    </div>
+
+    <div className="space-y-1 text-gray-800 dark:text-gray-200">
+      <p>🟦 <strong>Productivity Score:</strong> {performanceData?.productivityScore ?? "0"} / 100</p>
+      <p>🟩 <strong>Completion Rate:</strong> {performanceData?.completionRate?.toFixed(1) ?? "0.0"}% / 100%</p>
+      <p>🟨 <strong>On-Time Delivery:</strong> {performanceData?.onTimeRate?.toFixed(1) ?? "0.0"}% / 100%</p>
+      <p>🟪 <strong>Review Score:</strong> {performanceData?.reviewScore ?? "0"} / 100</p>
+      <p>
+        🔵 <strong>HR Score:</strong>{" "}
+        {performanceData?.hrFeedbackScore !== undefined
+          ? Number(performanceData.hrFeedbackScore).toFixed(1)
+          : "0.0"} / 100
       </p>
     </div>
-  </PortalTooltip>
 
-=======
-                      <CustomTooltip performanceData={performanceData}>
-                        <div className="flex items-center gap-1 cursor-pointer">
-                          Performance Matrix:{" "}
-                          <span className="font-bold text-purple-600 dark:text-purple-400">
-                            {performanceData.totalPerformanceScore}%
-                          </span>
-                        </div>
-                      </CustomTooltip>
->>>>>>> 25799db (Udated ui and funcinality of ceo)
+    <hr className="my-2" />
+
+    <p className="font-bold text-gray-900 dark:text-gray-100">
+      🏁 Final Score: {performanceData?.totalPerformanceScore ?? "0"}% / 100%
+    </p>
+  </div>
+</PortalTooltip>
                     </div>
                   </div>
                 </div>

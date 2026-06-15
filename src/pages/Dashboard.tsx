@@ -1402,13 +1402,9 @@ const Dashboard = () => {
             </div>
 
             {/* Table */}
-<<<<<<< HEAD
-           <div className="p-6">
-=======
             <div className="p-6">
->>>>>>> 82bc0d4f429399f092961856dfd97a2de80dceab
-  <div className="overflow-x-auto overflow-y-auto max-h-[400px] rounded-lg border border-gray-200 dark:border-gray-700">
-    <table className="min-w-full text-base text-left border-collapse">
+              <div className="overflow-x-auto overflow-y-auto max-h-[400px] rounded-lg border border-gray-200 dark:border-gray-700">
+                <table className="min-w-full text-base text-left border-collapse">
 
                 <thead className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white text-lg">
                   <tr>
@@ -1643,27 +1639,15 @@ const Dashboard = () => {
                           )}
                       </div>
                     </div>
-<<<<<<< HEAD
-                    
-=======
->>>>>>> 82bc0d4f429399f092961856dfd97a2de80dceab
                   </div>
                 </div>
               )}
             </div>
           </div>
-<<<<<<< HEAD
         </div>
         </div>
       )}
     </div>
-  
-=======
-            </div>  
-        </div>
-      )}
-    </div>
->>>>>>> 82bc0d4f429399f092961856dfd97a2de80dceab
   );
 };
 
